@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { getCurrentUserId } from "@/lib/auth"
 import { userRepository } from "@/lib/repositories/user-repository"
-import { updateProfileAction } from "./actions"
+import { updateProfileAction } from "../actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -42,7 +42,7 @@ export default async function ProfilePage() {
               <Input
                 id="name"
                 name="name"
-                defaultValue={user.name}
+                defaultValue={user.name ?? ""}
                 placeholder="Your name"
               />
             </div>
@@ -51,8 +51,17 @@ export default async function ProfilePage() {
               <Input
                 id="homeCity"
                 name="homeCity"
-                defaultValue={user.homeCity}
+                defaultValue={user.homeCity ?? ""}
                 placeholder="e.g. Seattle"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="instagramHandle">Instagram Handle</Label>
+              <Input
+                id="instagramHandle"
+                name="instagramHandle"
+                defaultValue={user.instagramHandle ?? ""}
+                placeholder="e.g. @yourhandle"
               />
             </div>
             <Button type="submit">Save</Button>

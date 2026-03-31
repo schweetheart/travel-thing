@@ -19,11 +19,8 @@ export const userRepository = {
 
   async update(
     id: number,
-    { name, homeCity }: { name?: string; homeCity?: string }
+    data: { name?: string; homeCity?: string; instagramHandle?: string }
   ) {
-    const data: { name?: string; homeCity?: string } = {}
-    if (name !== undefined) data.name = name
-    if (homeCity !== undefined) data.homeCity = homeCity
     return prisma.user.update({
       where: { id },
       data,

@@ -12,13 +12,15 @@ import {
   CardDescription,
 } from "@/components/ui/card"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item"
+import { createVisitAction, deleteVisitAction } from "@/app/actions"
+import { TripForm } from "@/components/trip-form"
 
 function formatDate(d: Date) {
   return d.toLocaleDateString("en-US", {
@@ -43,32 +45,63 @@ export default async function VisitDetailPage({
   const visit = await visitRepository.findById(id)
   if (!visit) notFound()
 
-  const overlapping = await visitRepository.findOverlapping(
-    visit.city,
-    visit.arriveAt,
-    visit.departAt,
-    visit.userId
-  )
+  const friendsOverlapping = await visitRepository.overlappingVisits(id)
+
+  const showEditButtons = visit.userId === userId
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6 p-6">
       <div className="flex items-center gap-3">
         <Button variant="outline" size="sm" asChild>
-          <Link href="/">← Back</Link>
+          <Link href="/"> Back</Link>
         </Button>
-        <h1 className="text-2xl font-bold">Trip to {visit.city}</h1>
+        <h1 className="text-2xl font-bold">
+          {visit.user.name?.split(" ")[0]}&apos;s Trip to {visit.location.city}
+        </h1>
       </div>
+      {showEditButtons ? (
+        <div className="flex gap-2">
+          <form action={deleteVisitAction}>
+            <input type="hidden" name="visitId" value={visit.id} />
+            <Button variant="destructive">Delete</Button>
+          </form>
+          <TripForm
+            visit={{
+              id: visit.id,
+              city: visit.location.city,
+              arriveAt: visit.arriveAt,
+              departAt: visit.departAt,
+            }}
+          />
+        </div>
+      ) : (
+        <form action={createVisitAction}>
+          <input type="hidden" name="city" value={visit.location.city} />
+          <input
+            type="hidden"
+            name="arriveAt"
+            value={visit.arriveAt.toISOString()}
+          />
+          <input
+            type="hidden"
+            name="departAt"
+            value={visit.departAt.toISOString()}
+          />
+          <Button>Join this trip</Button>
+        </form>
+      )}
 
       <Card>
         <CardHeader>
-          <CardTitle>{visit.city}</CardTitle>
+          <CardTitle>{visit.location.city}</CardTitle>
           <CardDescription>
             {formatDate(visit.arriveAt)} — {formatDate(visit.departAt)}
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          Booked by user{" "}
-          <strong>{visit.user.name || `#${visit.user.id}`}</strong>
+        <CardContent className="flex flex-col gap-3 text-sm text-muted-foreground">
+          {visit.description && (
+            <p className="text-foreground">{visit.description}</p>
+          )}
         </CardContent>
       </Card>
 
@@ -76,58 +109,66 @@ export default async function VisitDetailPage({
         <CardHeader>
           <CardTitle>Who else will be there?</CardTitle>
           <CardDescription>
-            People visiting {visit.city} with overlapping dates
+            People visiting {visit.location.city} with overlapping dates
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {overlapping.length === 0 ? (
+          {friendsOverlapping.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No one else is visiting {visit.city} during this time. Feels
-              lowkey solo rn 😔
+              No one else is visiting {visit.location.city} during this time.
+              Feels lowkey solo rn 😔
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Arrive</TableHead>
-                  <TableHead>Depart</TableHead>
-                  <TableHead>Overlap</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {overlapping.map((ov) => {
-                  const overlapStart = new Date(
-                    Math.max(visit.arriveAt.getTime(), ov.arriveAt.getTime())
-                  )
-                  const overlapEnd = new Date(
-                    Math.min(visit.departAt.getTime(), ov.departAt.getTime())
-                  )
-                  const days = Math.ceil(
-                    (overlapEnd.getTime() - overlapStart.getTime()) /
-                      (1000 * 60 * 60 * 24)
-                  )
+            <ItemGroup>
+              {friendsOverlapping.map((ov) => {
+                const overlapStart = new Date(
+                  Math.max(visit.arriveAt.getTime(), ov.arriveAt.getTime())
+                )
+                const overlapEnd = new Date(
+                  Math.min(visit.departAt.getTime(), ov.departAt.getTime())
+                )
+                const days = Math.ceil(
+                  (overlapEnd.getTime() - overlapStart.getTime()) /
+                    (1000 * 60 * 60 * 24)
+                )
+                const initials = (ov.user.name ?? `#${ov.user.id}`)
+                  .split(" ")
+                  .map((w) => w[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase()
 
-                  return (
-                    <TableRow key={ov.id}>
-                      <TableCell className="font-medium">
-                        {ov.user.name || `User #${ov.user.id}`}
-                      </TableCell>
-                      <TableCell>{formatDate(ov.arriveAt)}</TableCell>
-                      <TableCell>{formatDate(ov.departAt)}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">
-                          {days} day{days !== 1 ? "s" : ""}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
+                return (
+                  <Item key={ov.id} asChild>
+                    <Link href={`/${ov.user.id}`}>
+                      <ItemMedia variant="image" className="rounded-full">
+                        <img src="https://picsum.photos/200" />
+                        {/* <div className="flex size-10 items-center justify-center rounded-full bg-muted text-xs font-medium">
+                          {initials}
+                        </div> */}
+                      </ItemMedia>
+                      <ItemContent>
+                        <ItemTitle>
+                          {ov.user.name || `User #${ov.user.id}`}
+                        </ItemTitle>
+                        <ItemDescription>
+                          {formatDate(ov.arriveAt)} — {formatDate(ov.departAt)}
+                        </ItemDescription>
+                      </ItemContent>
+                      <Badge variant="secondary">
+                        {days} day{days !== 1 ? "s" : ""}
+                      </Badge>
+                    </Link>
+                  </Item>
+                )
+              })}
+            </ItemGroup>
           )}
         </CardContent>
       </Card>
+      {
+        // We could show some fun stats, eg how many times you have been to this location
+      }
     </div>
   )
 }

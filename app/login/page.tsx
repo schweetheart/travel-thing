@@ -1,6 +1,6 @@
 import { userRepository } from "@/lib/repositories/user-repository"
 import { getCurrentUserId } from "@/lib/auth"
-import { setUserAction } from "./actions"
+import { setUserAction, logoutAction } from "./actions"
 import {
   Card,
   CardContent,
@@ -53,9 +53,16 @@ export default async function LoginPage() {
             <Button type="submit">Set User</Button>
           </form>
           {currentUserId && (
-            <p className="mt-3 text-sm text-muted-foreground">
-              Currently logged in as user <strong>{currentUserId}</strong>
-            </p>
+            <div className="mt-3 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Currently logged in as user <strong>{currentUserId}</strong>
+              </p>
+              <form action={logoutAction}>
+                <Button variant="outline" size="sm" type="submit">
+                  Logout
+                </Button>
+              </form>
+            </div>
           )}
         </CardContent>
       </Card>

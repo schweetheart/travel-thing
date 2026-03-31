@@ -9,6 +9,5 @@ export function formatDate(d: Date) {
   return d.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
-    year: "numeric",
   })
 }

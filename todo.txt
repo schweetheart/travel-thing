@@ -1,0 +1,59 @@
+ Problem
+ - Powergays want to catchup when they are visiting cities
+ - I have a big social circle. And while I might not know the person well enough to intentionally book a trip with them, I do want to know when they are in the same place as me, I want the opportunity to catchup with them.
+ - On instagram I might just add a note, but this doesn't last long, or it happens the day before. theres not enough notice. Eg my trip to london and berlin.
+ - Its also an excuse to catch up with party people (lol) (or I just want an invite to an afters)
+
+ Privacy
+    - Public (Everyone can view your upcoming trips and home)
+    - Private (Only followers can see your trips and home)
+    - Restricted (followers require approval, and can only see overlapping trips)
+
+- Business monetisation
+    - Referall / affiliate revenue from event promoters
+    - FOMO, Can we recognize when people you follow are all going to an event and suggest you do the same?
+    - Do we just charge a fee like flighty? Could we be a place where you manage your event tickets and you find up to date information
+
+- Social
+    - Should we have some kind of social handle that people can claim
+    - Add friend button, creates a link that you can share with people, they can then accept it
+    - If you view a profile that you are not friends with, you have the option to add them
+    - We could share anonmous aggegrate data
+        - Eg heatmap of where people are traveling at a certain date
+        - 100 people traveling on this day (NYC is popular duriong these dates)
+
+
+
+- Misc usecases
+    - Im going to be in PV for creators week, and another creator is going to be there
+    - Share my trip list via private link?
+    - Could the entire thing be done via private link, like partiful. Eg I dont have to accept followers (or is this just how public things would work)
+    - If I see a friend is doing EDC would I then book to go to EDC - Or is this platform purely forconcidental opportunities
+    - How can we notify you when a friend adds a trip
+    - Awards / gamification. Eg if you go to many EDM events. get the EDM head trophey
+    - Can you search for friends, or are you purely avaliable to only do it via link? How does flighty work?
+        - Lets do it via link for now.
+        - Assume that if someone shares a link, and they accept you become friends. 
+        - It would be weird to have someone follow your flights, but not be able to see it back?
+    - Sometime I want to go on a trip somewhere, but only if I have friends going
+    - How can we facilitate fast import of trips, importing from calender, copy and paste? Foward invites to a personal website
+    - Not for making new friends, more for maintaining exising opportunities
+    - When you view someone elses trip - should we show how many people taht other persoin knows?
+    - Should the invite link be per user, or something that can be shared?
+
+
+    
+
+    
+UI
+- We should hide trips that have occrred in the past
+- We should highlight a trip that is happening right now(Should we update the map to show you at the location)
+- When someone views your profile, should we highlight the current trip that yoiu are on / your current locaiton. (swap between the home logo)
+
+Partiful observations
+- The event link itself is basically unguessable (same as profiles). It shows some basic inforamtion about the hosts and event, but you cant see sensitive things like the location or who is going
+
+
+Concernt
+- People who dont travel as much feel marganlized
+- Should this be something that you show off with?

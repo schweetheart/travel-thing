@@ -23,18 +23,17 @@ export async function updateVisitAction(formData: FormData) {
   if (!userId) return
 
   const id = parseInt(formData.get("id") as string, 10)
-  const city = (formData.get("city") as string).trim()
+  // const city = (formData.get("city") as string).trim()
   const arriveAt = new Date(formData.get("arriveAt") as string)
   const departAt = new Date(formData.get("departAt") as string)
 
-  if (!id || !city || isNaN(arriveAt.getTime()) || isNaN(departAt.getTime()))
-    return
+  if (!id || isNaN(arriveAt.getTime()) || isNaN(departAt.getTime())) return
 
   // verify ownership
   const visit = await visitRepository.findById(id)
   if (!visit || visit.userId !== userId) return
 
-  await visitRepository.update(id, { city, arriveAt, departAt })
+  await visitRepository.update(id, { arriveAt, departAt })
   revalidatePath("/")
 }
 

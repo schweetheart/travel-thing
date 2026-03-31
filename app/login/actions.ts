@@ -15,3 +15,9 @@ export async function setUserAction(formData: FormData) {
   cookieStore.set("userId", String(userId), { path: "/" })
   redirect("/")
 }
+
+export async function logoutAction() {
+  const cookieStore = await cookies()
+  cookieStore.delete("userId")
+  redirect("/login")
+}
