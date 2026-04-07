@@ -3,6 +3,7 @@
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { userRepository } from "@/lib/repositories/user-repository"
+import { Route } from "next"
 
 export async function setUserAction(formData: FormData) {
   const userId = parseInt(formData.get("userId") as string, 10)
@@ -13,7 +14,7 @@ export async function setUserAction(formData: FormData) {
 
   const cookieStore = await cookies()
   cookieStore.set("userId", String(userId), { path: "/" })
-  redirect("/")
+  redirect("/" as Route)
 }
 
 export async function logoutAction() {

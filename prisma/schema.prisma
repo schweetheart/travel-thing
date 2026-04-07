@@ -17,13 +17,30 @@ model User {
 
 model Visit {
   id        Int      @id @default(autoincrement())
-  description String?
+  displayName String?
   locationId Int
   arriveAt  DateTime @db.Date
   departAt  DateTime @db.Date
   userId    Int
   location  Location @relation(fields: [locationId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
+  activities VisitActivity[]
+}
+
+model Activity {
+  id     Int     @id @default(autoincrement())
+  url    String?
+  name   String  @unique
+  visits VisitActivity[]
+}
+
+model VisitActivity {
+  visitId    Int
+  activityId Int
+  visit      Visit    @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  activity   Activity @relation(fields: [activityId], references: [id])
+
+  @@id([visitId, activityId])
 }
 
 model Location {

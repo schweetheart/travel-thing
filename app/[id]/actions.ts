@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { getCurrentUserId } from "@/lib/auth"
 import { userRepository } from "@/lib/repositories/user-repository"
 import { redirect } from "next/navigation"
+import { Route } from "next"
 
 export async function updateProfileAction(formData: FormData) {
   const userId = await getCurrentUserId()
@@ -15,5 +16,5 @@ export async function updateProfileAction(formData: FormData) {
 
   await userRepository.update(userId, { name, homeCity, instagramHandle })
   revalidatePath("/profile")
-  redirect("/")
+  redirect("/" as Route)
 }

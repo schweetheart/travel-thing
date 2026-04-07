@@ -6,32 +6,54 @@ export const visitRepository = {
    */
   async findByUser(
     userId: number,
-    { upcomingOnly }: { upcomingOnly?: boolean } = { upcomingOnly: false }
+    {
+      upcomingOnly,
+      viewerUserId,
+    }: { upcomingOnly?: boolean; viewerUserId?: number } = {
+      upcomingOnly: false,
+    }
   ) {
     const today = new Date()
 
-    return prisma.visit.findMany({
+    const visits = await prisma.visit.findMany({
       include: {
+        activities: { include: { activity: true } },
         location: {
           include: {
             visits: {
               where: { userId: { not: userId } },
               include: { user: true },
-              take: 3, // only show 3 visitors in the home city card to avoid clutter, we can show more in the visit details page
-            },
-            _count: {
-              select: {
-                visits: {
-                  where: { userId: { not: userId } },
-                },
-              },
             },
           },
         },
       },
-
       where: { userId, departAt: upcomingOnly ? { gte: today } : undefined },
       orderBy: { arriveAt: "asc" },
+    })
+
+    // Prisma can't reference parent fields in nested where clauses, so we
+    // filter co-visitors to only those whose stay overlaps with this trip.
+    return visits.map((visit) => {
+      const overlapping = visit.location.visits.filter(
+        (v) => v.arriveAt < visit.departAt && v.departAt > visit.arriveAt
+      )
+      const viewerOverlaps =
+        viewerUserId != null &&
+        viewerUserId !== userId &&
+        overlapping.some((v) => v.userId === viewerUserId)
+      return {
+        ...visit,
+        viewerOverlaps,
+        location: {
+          ...visit.location,
+          visits: overlapping
+            .filter((v) => v.userId !== viewerUserId)
+            .slice(0, 3),
+          _count: {
+            visits: overlapping.filter((v) => v.userId !== viewerUserId).length,
+          },
+        },
+      }
     })
   },
 
@@ -53,10 +75,12 @@ export const visitRepository = {
       where: {
         locationId: visit.locationId,
         id: { not: id },
-        arriveAt: { lt: visit.departAt }, // their arrival is before your departure
-        departAt: { gt: visit.arriveAt }, // their departure is after your arrival
+        AND: [
+          { arriveAt: { lt: visit.departAt } },
+          { departAt: { gt: visit.arriveAt } },
+        ],
       },
-      include: { user: true },
+      include: { user: true, activities: { include: { activity: true } } },
       orderBy: { arriveAt: "asc" },
     })
   },
@@ -66,11 +90,14 @@ export const visitRepository = {
     arriveAt: Date
     departAt: Date
     userId: number
+    displayName?: string | null
+    activityNames?: string[]
   }) {
     return prisma.visit.create({
       data: {
         arriveAt: data.arriveAt,
         departAt: data.departAt,
+        displayName: data.displayName,
         user: {
           connect: { id: data.userId },
         },
@@ -80,17 +107,55 @@ export const visitRepository = {
             create: { city: data.city },
           },
         },
+        activities: data.activityNames?.length
+          ? {
+              create: data.activityNames.map((name) => ({
+                activity: {
+                  connectOrCreate: {
+                    where: { name },
+                    create: { name },
+                  },
+                },
+              })),
+            }
+          : undefined,
       },
     })
   },
 
-  async update(id: number, data: { arriveAt?: Date; departAt?: Date }) {
-    return prisma.visit.update({
-      where: { id },
-      data: {
-        arriveAt: data.arriveAt,
-        departAt: data.departAt,
-      },
+  async update(
+    id: number,
+    data: {
+      arriveAt?: Date
+      departAt?: Date
+      displayName?: string | null
+      activityNames?: string[]
+    }
+  ) {
+    return prisma.$transaction(async (tx) => {
+      if (data.activityNames !== undefined) {
+        await tx.visitActivity.deleteMany({ where: { visitId: id } })
+        if (data.activityNames.length > 0) {
+          for (const name of data.activityNames) {
+            const activity = await tx.activity.upsert({
+              where: { name },
+              create: { name },
+              update: {},
+            })
+            await tx.visitActivity.create({
+              data: { visitId: id, activityId: activity.id },
+            })
+          }
+        }
+      }
+      return tx.visit.update({
+        where: { id },
+        data: {
+          arriveAt: data.arriveAt,
+          departAt: data.departAt,
+          displayName: data.displayName,
+        },
+      })
     })
   },
 
@@ -98,10 +163,40 @@ export const visitRepository = {
     return prisma.visit.delete({ where: { id } })
   },
 
+  async addActivity(visitId: number, activityName: string) {
+    const activity = await prisma.activity.upsert({
+      where: { name: activityName },
+      create: { name: activityName },
+      update: {},
+    })
+    // No-op if already linked
+    const existing = await prisma.visitActivity.findFirst({
+      where: { visitId, activityId: activity.id },
+    })
+    if (existing) return existing
+    return prisma.visitActivity.create({
+      data: { visitId, activityId: activity.id },
+    })
+  },
+
+  async removeActivity(visitId: number, activityName: string) {
+    const activity = await prisma.activity.findUnique({
+      where: { name: activityName },
+    })
+    if (!activity) return
+    await prisma.visitActivity.deleteMany({
+      where: { visitId, activityId: activity.id },
+    })
+  },
+
   async findById(id: number) {
     return prisma.visit.findUnique({
       where: { id },
-      include: { user: true, location: true },
+      include: {
+        user: true,
+        location: true,
+        activities: { include: { activity: true } },
+      },
     })
   },
 

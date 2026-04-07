@@ -42,7 +42,7 @@ export const ProfileHeader = async ({ userId }: { userId: number }) => {
       )}
       {currentUserId === userId && (
         <Button variant={"outline"} asChild>
-          <Link href="/profile">Edit</Link>
+          <Link href={`/${userId}/edit`}>Edit</Link>
         </Button>
       )}
     </div>

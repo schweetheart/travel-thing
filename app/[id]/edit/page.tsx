@@ -13,6 +13,14 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card"
+import { ChevronLeft, Instagram } from "lucide-react"
+import { Route } from "next"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 
 export default async function ProfilePage() {
   const userId = await getCurrentUserId()
@@ -21,53 +29,47 @@ export default async function ProfilePage() {
   const user = await userRepository.findById(userId)
   if (!user) redirect("/login")
 
+  await setTimeout(() => {}, 1000) // Simulate loading state
+
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-6 p-6">
-      <div className="flex items-center gap-3">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/">← Back</Link>
-        </Button>
-        <h1 className="text-2xl font-bold">Profile</h1>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Info</CardTitle>
-          <CardDescription>User #{user.id}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form action={updateProfileAction} className="flex flex-col gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                name="name"
-                defaultValue={user.name ?? ""}
-                placeholder="Your name"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="homeCity">Home City</Label>
-              <Input
-                id="homeCity"
-                name="homeCity"
-                defaultValue={user.homeCity ?? ""}
-                placeholder="e.g. Seattle"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="instagramHandle">Instagram Handle</Label>
-              <Input
+      <form action={updateProfileAction}>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="name">Name</FieldLabel>
+            <Input
+              id="name"
+              name="name"
+              defaultValue={user.name ?? ""}
+              placeholder="Your name"
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="homeCity">Home City</FieldLabel>
+            <Input
+              id="homeCity"
+              name="homeCity"
+              defaultValue={user.homeCity ?? ""}
+              placeholder="e.g. Seattle"
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="instagramHandle">Instagram </FieldLabel>
+            <InputGroup>
+              <InputGroupInput
                 id="instagramHandle"
                 name="instagramHandle"
                 defaultValue={user.instagramHandle ?? ""}
                 placeholder="e.g. @yourhandle"
               />
-            </div>
-            <Button type="submit">Save</Button>
-          </form>
-        </CardContent>
-      </Card>
+              <InputGroupAddon>
+                <Instagram />
+              </InputGroupAddon>
+            </InputGroup>
+          </Field>
+          <Button type="submit">Save</Button>
+        </FieldGroup>
+      </form>
     </div>
   )
 }

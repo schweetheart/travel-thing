@@ -1,14 +1,17 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useTransition } from "react"
+import { useForm, Controller } from "react-hook-form"
 import { createVisitAction, updateVisitAction } from "@/app/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Calendar } from "@/components/ui/calendar"
-import { Field, FieldSet } from "@/components/ui/field"
+import { Field, FieldLabel, FieldSet } from "@/components/ui/field"
 import {
   Drawer,
+  DrawerClose,
   DrawerContent,
+  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -16,119 +19,167 @@ import {
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import { type DateRange } from "react-day-picker"
+import { cn } from "@/lib/utils"
 
-type Visit = { id: number; city: string; arriveAt: Date; departAt: Date }
+export type Visit = {
+  id: number
+  city: string
+  arriveAt: Date
+  departAt: Date
+  displayName?: string | null
+  activities?: string[]
+}
 
-export function TripForm({
-  visit,
-  trigger,
-  onSubmitAction,
-}: {
-  visit?: Visit
-  trigger?: React.ReactNode
-  onSubmitAction?: (value: string) => void | Promise<void>
-}) {
+type TripFormValues = {
+  city: string
+  displayName: string
+  dateRange: DateRange | undefined
+}
+
+export function TripForm({ visit }: { visit?: Visit }) {
   const isEditing = !!visit
-  const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
-  const [date, setDate] = useState<DateRange | undefined>(
-    visit ? { from: visit.arriveAt, to: visit.departAt } : undefined
-  )
 
-  const action = (formData: FormData) => {
-    setOpen(false)
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    watch,
+  } = useForm<TripFormValues>({
+    defaultValues: {
+      city: visit?.city ?? "",
+      displayName: visit?.displayName ?? "",
+      dateRange: visit
+        ? { from: visit.arriveAt, to: visit.departAt }
+        : undefined,
+    },
+  })
+
+  const cityValue = watch("city")
+
+  const onSubmit = (data: TripFormValues) => {
     startTransition(async () => {
-      await onSubmitAction?.("Hello world!")
+      const formData = new FormData()
+      if (isEditing) formData.set("id", String(visit.id))
+      formData.set("city", data.city)
+      formData.set("displayName", data.displayName)
+      if (data.dateRange?.from)
+        formData.set("arriveAt", format(data.dateRange.from, "yyyy-MM-dd"))
+      if (data.dateRange?.to)
+        formData.set("departAt", format(data.dateRange.to, "yyyy-MM-dd"))
 
       if (isEditing) {
         return await updateVisitAction(formData)
       }
-
       await createVisitAction(formData)
     })
   }
 
-  const defaultTrigger = isEditing ? (
-    <Button variant="outline">Edit</Button>
-  ) : (
-    <Button>Add Trip</Button>
-  )
-
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>{trigger ?? defaultTrigger}</DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>{isEditing ? "Edit Trip" : "New Trip"}</DrawerTitle>
-        </DrawerHeader>
-        <div className="px-4">
-          <form action={action}>
-            {isEditing && <input type="hidden" name="id" value={visit.id} />}
-            <FieldSet>
-              <Field>
-                <Input
-                  id="city"
-                  name="city"
-                  placeholder="Where to?"
-                  disabled={isEditing}
-                  defaultValue={visit?.city}
-                  required
-                />
-              </Field>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <FieldSet>
+        <Field>
+          <FieldLabel htmlFor="city">Where</FieldLabel>
+          <Input
+            placeholder="Where"
+            disabled={isEditing}
+            {...register("city", { required: "City is required" })}
+          />
+          {errors.city && (
+            <span className="text-sm text-destructive">
+              {errors.city.message}
+            </span>
+          )}
+        </Field>
 
-              <Field>
-                <Button
-                  variant="outline"
-                  type="button"
-                  className="w-65 justify-start px-2.5 font-normal"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date?.from ? (
-                    date.to ? (
-                      <>
-                        {format(date.from, "LLL dd, y")} –{" "}
-                        {format(date.to, "LLL dd, y")}
-                      </>
+        <Field>
+          <FieldLabel htmlFor="displayName">Display name</FieldLabel>
+          <Input
+            placeholder={cityValue ? cityValue : "Display name (optional)"}
+            {...register("displayName")}
+          />
+        </Field>
+
+        <Field>
+          <Controller
+            control={control}
+            name="dateRange"
+            rules={{
+              validate: (v) =>
+                v?.from && v?.to ? true : "Pick both arrival & departure dates",
+            }}
+            render={({ field }) => (
+              <Drawer>
+                <DrawerTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    type="button"
+                    className={cn(
+                      "justify-start text-left",
+                      !field.value && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {field.value?.from ? (
+                      field.value.to ? (
+                        <>
+                          {format(field.value.from, "LLL dd, y")} –{" "}
+                          {format(field.value.to, "LLL dd, y")}
+                        </>
+                      ) : (
+                        format(field.value.from, "LLL dd, y")
+                      )
                     ) : (
-                      format(date.from, "LLL dd, y")
-                    )
-                  ) : (
-                    <span>Pick arrival & departure</span>
-                  )}
-                </Button>
-                <Calendar
-                  disabled={{ before: new Date() }}
-                  mode="range"
-                  defaultMonth={date?.from}
-                  selected={date}
-                  onSelect={setDate}
-                  numberOfMonths={1}
-                />
-                <input
-                  type="hidden"
-                  name="arriveAt"
-                  value={date?.from ? format(date.from, "yyyy-MM-dd") : ""}
-                />
-                <input
-                  type="hidden"
-                  name="departAt"
-                  value={date?.to ? format(date.to, "yyyy-MM-dd") : ""}
-                />
-              </Field>
+                      <span>When</span>
+                    )}
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <div className="mx-auto w-full max-w-lg">
+                    <DrawerHeader>
+                      <DrawerTitle>Pick your trip dates</DrawerTitle>
+                    </DrawerHeader>
+                    <div className="overflow-y-auto px-4">
+                      <Calendar
+                        disabled={{ before: new Date() }}
+                        mode="range"
+                        numberOfMonths={1}
+                        defaultMonth={field.value?.from}
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        className="w-full"
+                      />
+                    </div>
+                    <DrawerFooter>
+                      <DrawerClose asChild>
+                        <Button>Done</Button>
+                      </DrawerClose>
+                    </DrawerFooter>
+                  </div>
+                </DrawerContent>
+              </Drawer>
+            )}
+          />
+          {errors.dateRange && (
+            <span className="text-sm text-destructive">
+              {errors.dateRange.message}
+            </span>
+          )}
+        </Field>
+      </FieldSet>
 
-              <Button type="submit" className="mb-4" disabled={isPending}>
-                {isPending
-                  ? isEditing
-                    ? "Saving..."
-                    : "Adding..."
-                  : isEditing
-                    ? "Save"
-                    : "Add Trip"}
-              </Button>
-            </FieldSet>
-          </form>
-        </div>
-      </DrawerContent>
-    </Drawer>
+      <div className="mt-6">
+        <Button type="submit" disabled={isPending} className="w-full">
+          {isPending
+            ? isEditing
+              ? "Saving..."
+              : "Adding..."
+            : isEditing
+              ? "Save"
+              : "Add Trip"}
+        </Button>
+      </div>
+    </form>
   )
 }

@@ -88,13 +88,22 @@ export default async function LoginPage() {
               </TableHeader>
               <TableBody>
                 {users.map((user) => (
-                  <TableRow key={user.id}>
+                  <TableRow key={user.id} className="group">
                     <TableCell className="font-mono">{user.id}</TableCell>
                     <TableCell>{user.name || "—"}</TableCell>
                     <TableCell>{user.homeCity || "—"}</TableCell>
                     <TableCell>
-                      {user.id === currentUserId && (
-                        <Badge variant="secondary">Active</Badge>
+                      {user.id === currentUserId ? (
+                        <Badge className="border border-solid border-green-100 bg-green-100 text-green-600">
+                          Active
+                        </Badge>
+                      ) : (
+                        <form action={setUserAction}>
+                          <input type="hidden" name="userId" value={user.id} />
+                          <Button variant="link" size="sm" type="submit">
+                            Switch
+                          </Button>
+                        </form>
                       )}
                     </TableCell>
                   </TableRow>
