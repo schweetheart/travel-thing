@@ -8,6 +8,7 @@ import Image from "next/image"
 import { Dot, House, Instagram } from "lucide-react"
 import { Button } from "./ui/button"
 import { FileUpload } from "./upload-image"
+import { getUrl } from "@/lib/storage"
 
 export const ProfileHeader = async ({ userId }: { userId: number }) => {
   const currentUserId = await getCurrentUserId()
@@ -16,20 +17,22 @@ export const ProfileHeader = async ({ userId }: { userId: number }) => {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="relative size-40 overflow-hidden rounded-full bg-accent">
-        {user?.profileImageKey && (
-          <Image
-            fill={true}
-            sizes="230px"
-            src={
-              process.env.R2_BUCKET_URL + "/" + user?.profileImageKey ||
-              "/default-profile.png"
-            }
-            alt={`${user?.name}'s profile picture`}
-          />
-        )}
+      <div className="relative">
+        <div className="relative size-40 overflow-hidden rounded-full bg-accent">
+          {user?.profileImageKey && (
+            <Image
+              fill={true}
+              objectFit="cover"
+              sizes="230px"
+              src={getUrl(user.profileImageKey)}
+              alt={`${user?.name}'s profile picture`}
+            />
+          )}
+        </div>
+        <div className="absolute right-0 bottom-0">
+          <FileUpload />
+        </div>
       </div>
-      <FileUpload />
 
       <div className="text-2xl font-bold">{user?.name}</div>
       <div className="flex items-center gap-0.5">

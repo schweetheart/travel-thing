@@ -19,7 +19,6 @@ import {
 } from "./ui/avatar"
 import { formatDateRange, getFirstName } from "@/lib/utils"
 import { Badge } from "./ui/badge"
-import { Separator } from "./ui/separator"
 import { Plane } from "lucide-react"
 
 function Dot() {

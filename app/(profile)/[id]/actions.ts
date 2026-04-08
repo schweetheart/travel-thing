@@ -7,6 +7,8 @@ import { redirect } from "next/navigation"
 import { Route } from "next"
 import { z } from "zod"
 import { getCloudflareContext } from "@opennextjs/cloudflare"
+import { deleteFile, uploadFile } from "@/lib/storage"
+import { MIME_TYPES } from "@/lib/consts"
 
 export async function updateProfileAction(formData: FormData) {
   const userId = await getCurrentUserId()
@@ -26,30 +28,31 @@ export const uploadProfileImage = async (data: FormData) => {
 
   const IMAGE_SCHEMA = z
     .file()
-    .mime(["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp"])
+    .mime(MIME_TYPES)
     .max(25 * 1024 * 1024) // Max file size: 25MB
 
-  IMAGE_SCHEMA.parse(file)
+  const validatedFile = IMAGE_SCHEMA.parse(file)
 
   const userId = await getCurrentUserId()
   if (!userId) return
 
   // Generate a random key for the image (UUID)
   const imageKey = crypto.randomUUID()
-  const cloudflare = getCloudflareContext()
 
   try {
     // Upload image to R2 with the random key
-    const object = await cloudflare.env.IMAGES_R2_BUCKET.put(imageKey, file)
+    await uploadFile(imageKey, validatedFile)
 
-    if (!object) {
-      throw new Error("Failed to upload image to R2")
+    // Delete the old profile image from R2 if it exists
+    const user = await userRepository.findById(userId)
+    if (user?.profileImageKey) {
+      await deleteFile(user.profileImageKey)
     }
 
     // Update the user's profileImageKey column in the database using the request context
     await userRepository.update(userId, { profileImageKey: imageKey })
 
-    console.log("Uploaded image to R2:", object?.size, "Key:", imageKey)
+    console.log("Uploaded image to R2:", validatedFile.size, "Key:", imageKey)
 
     revalidatePath("/")
     revalidatePath(`/${userId}`)
