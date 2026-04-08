@@ -7,7 +7,6 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatDate(d: Date) {
   return d.toLocaleDateString("en-US", {
-    weekday: "short",
     month: "short",
     day: "numeric",
   })

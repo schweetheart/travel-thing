@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+import { Prisma } from "@/generated/prisma/client"
 
 export const userRepository = {
   async findAll() {
@@ -17,10 +18,7 @@ export const userRepository = {
     })
   },
 
-  async update(
-    id: number,
-    data: { name?: string; homeCity?: string; instagramHandle?: string }
-  ) {
+  async update(id: number, data: Prisma.UserUpdateInput) {
     return prisma.user.update({
       where: { id },
       data,

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-export const proxy = (request: NextRequest) => {
+export const middleware = (request: NextRequest) => {
   const userId = request.cookies.get("userId")
 
   if (!userId) {

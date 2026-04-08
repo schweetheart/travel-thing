@@ -11,12 +11,16 @@ import {
 } from "./ui/item"
 import {
   Avatar,
+  AvatarBadge,
   AvatarFallback,
   AvatarGroup,
   AvatarGroupCount,
+  AvatarImage,
 } from "./ui/avatar"
 import { formatDateRange, getFirstName } from "@/lib/utils"
 import { Badge } from "./ui/badge"
+import { Separator } from "./ui/separator"
+import { Plane } from "lucide-react"
 
 function Dot() {
   return <span className="text-muted-foreground">·</span>
@@ -90,16 +94,18 @@ export const Trips = async ({ trips }: { trips: Trips }) => {
                         </div>
 
                         <ItemDescription>
-                          <div className="flex items-center gap-1.5">
-                            {activities.map((name, i) => (
-                              <span
-                                key={name}
-                                className="flex items-center gap-1.5"
-                              >
-                                {i > 0 && <Dot />}
-                                {name}
-                              </span>
-                            ))}
+                          <div className="overflow-hidden">
+                            <span className="flex items-center gap-1.5">
+                              {activities.map((name, i) => (
+                                <span
+                                  key={name}
+                                  className="flex shrink-0 items-center gap-1.5"
+                                >
+                                  {i > 0 && <Dot />}
+                                  {name}
+                                </span>
+                              ))}
+                            </span>
                           </div>
                         </ItemDescription>
 
@@ -108,6 +114,12 @@ export const Trips = async ({ trips }: { trips: Trips }) => {
                             <AvatarGroup>
                               {visit.location.visits.map((v) => (
                                 <Avatar key={v.id} size="sm">
+                                  <AvatarImage
+                                    src={"https://picsum.photos/200"}
+                                  />
+                                  <AvatarBadge>
+                                    <Plane />
+                                  </AvatarBadge>
                                   <AvatarFallback>
                                     {v.user.name
                                       ? v.user.name.charAt(0).toUpperCase()

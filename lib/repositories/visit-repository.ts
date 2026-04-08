@@ -163,11 +163,11 @@ export const visitRepository = {
     return prisma.visit.delete({ where: { id } })
   },
 
-  async addActivity(visitId: number, activityName: string) {
+  async addActivity(visitId: number, activityName: string, url?: string) {
     const activity = await prisma.activity.upsert({
       where: { name: activityName },
-      create: { name: activityName },
-      update: {},
+      create: { name: activityName, url: url || null },
+      update: url ? { url } : {},
     })
     // No-op if already linked
     const existing = await prisma.visitActivity.findFirst({

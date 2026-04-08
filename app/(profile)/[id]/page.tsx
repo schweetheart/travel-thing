@@ -126,23 +126,7 @@ export default async function ProfilePage({
       </div>
       <div className="mt-6 px-3">
         {displayedTrips.length === 0 ? (
-          <Empty>
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                {currentView === "mutual" ? <Users /> : <MapPin />}
-              </EmptyMedia>
-              <EmptyTitle>
-                {currentView === "mutual"
-                  ? "No overlapping trips"
-                  : "No trips yet"}
-              </EmptyTitle>
-              <EmptyDescription>
-                {currentView === "mutual"
-                  ? "No trips where you and this person overlap"
-                  : "Add a trip above to get started"}
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
+          <EmptyTravel />
         ) : (
           <Suspense fallback={<LoadingSkeleton />}>
             <Trips trips={displayedTrips} />
@@ -152,6 +136,20 @@ export default async function ProfilePage({
     </div>
   )
 }
+
+const EmptyTravel = () => (
+  <Empty>
+    <EmptyHeader>
+      <EmptyMedia variant="icon">
+        <MapPin />
+      </EmptyMedia>
+      <EmptyTitle>Add a trip</EmptyTitle>
+      <EmptyDescription>
+        Add trips and see when youll be in the same place as your friends
+      </EmptyDescription>
+    </EmptyHeader>
+  </Empty>
+)
 
 const LoadingSkeleton = () => (
   <div className="space-y-4">

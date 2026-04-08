@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client"
+  runtime = "cloudflare"
   output   = "../generated/prisma"
 }
 
@@ -8,29 +9,33 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  name     String?  
-  homeCity String?
-  instagramHandle String? 
-  visits   Visit[]
+  id              Int     @id @default(autoincrement())
+  profileImageKey String?
+  name            String?
+  createdAt       DateTime @default(now())
+  homeCity        String?
+  instagramHandle String?
+  visits          Visit[]
 }
 
 model Visit {
-  id        Int      @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   displayName String?
-  locationId Int
-  arriveAt  DateTime @db.Date
-  departAt  DateTime @db.Date
-  userId    Int
-  location  Location @relation(fields: [locationId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
-  activities VisitActivity[]
+  locationId  Int
+  arriveAt    DateTime        @db.Date
+  departAt    DateTime        @db.Date
+  userId      Int
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  location    Location        @relation(fields: [locationId], references: [id])
+  user        User            @relation(fields: [userId], references: [id])
+  activities  VisitActivity[]
 }
 
 model Activity {
-  id     Int     @id @default(autoincrement())
+  id     Int             @id @default(autoincrement())
   url    String?
-  name   String  @unique
+  name   String          @unique
   visits VisitActivity[]
 }
 
@@ -39,12 +44,14 @@ model VisitActivity {
   activityId Int
   visit      Visit    @relation(fields: [visitId], references: [id], onDelete: Cascade)
   activity   Activity @relation(fields: [activityId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@id([visitId, activityId])
 }
 
 model Location {
-  id        Int      @id @default(autoincrement())
-  city      String   @unique
-  visits    Visit[]
+  id     Int     @id @default(autoincrement())
+  city   String  @unique
+  visits Visit[]
 }

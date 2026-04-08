@@ -77,12 +77,14 @@ export async function addActivityToVisitAction(formData: FormData) {
 
   const visitId = parseInt(formData.get("visitId") as string, 10)
   const activityName = (formData.get("activityName") as string).trim()
+  const activityUrl =
+    ((formData.get("activityUrl") as string) ?? "").trim() || undefined
   if (!visitId || !activityName) return
 
   const visit = await visitRepository.findById(visitId)
   if (!visit || visit.userId !== userId) return
 
-  await visitRepository.addActivity(visitId, activityName)
+  await visitRepository.addActivity(visitId, activityName, activityUrl)
   revalidatePath(`/visit/${visitId}`)
 }
 

@@ -1,12 +1,8 @@
 "use client"
 
-import { useOptimistic, useRef, useTransition } from "react"
-import {
-  addActivityToVisitAction,
-  removeActivityFromVisitAction,
-} from "@/app/actions"
+import { useOptimistic, useTransition } from "react"
+import { removeActivityFromVisitAction } from "@/app/actions"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Item,
   ItemActions,
@@ -15,7 +11,13 @@ import {
   ItemGroup,
   ItemTitle,
 } from "@/components/ui/item"
-import { Trash } from "lucide-react"
+import { ExternalLink, Trash } from "lucide-react"
+import { ActivityForm } from "@/components/activity-form"
+
+export type ActivityData = {
+  name: string
+  url?: string | null
+}
 
 type OptimisticAction =
   | { type: "add"; name: string }
@@ -27,34 +29,17 @@ export function ActivityList({
   activityFriendMap = {},
 }: {
   visitId: number
-  initialActivities: string[]
+  initialActivities: ActivityData[]
   activityFriendMap?: Record<string, string[]>
 }) {
   const [isPending, startTransition] = useTransition()
   const [activities, dispatchOptimistic] = useOptimistic(
     initialActivities,
     (state, action: OptimisticAction) => {
-      if (action.type === "add") return [...state, action.name]
-      return state.filter((a) => a !== action.name)
+      if (action.type === "add") return [...state, { name: action.name }]
+      return state.filter((a) => a.name !== action.name)
     }
   )
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  function handleAdd() {
-    const name = inputRef.current?.value.trim()
-    if (!name) return
-
-    const formData = new FormData()
-    formData.set("visitId", String(visitId))
-    formData.set("activityName", name)
-
-    if (inputRef.current) inputRef.current.value = ""
-
-    startTransition(async () => {
-      dispatchOptimistic({ type: "add", name })
-      await addActivityToVisitAction(formData)
-    })
-  }
 
   function handleRemove(name: string) {
     const formData = new FormData()
@@ -71,13 +56,27 @@ export function ActivityList({
     <div className="flex flex-col gap-4">
       {activities.length > 0 && (
         <ItemGroup>
-          {activities.map((name) => (
-            <Item key={name} variant={"outline"}>
+          {activities.map((activity) => (
+            <Item key={activity.name} variant={"outline"}>
               <ItemContent>
-                <ItemTitle>{name}</ItemTitle>
-                {activityFriendMap[name] && (
+                <ItemTitle>
+                  {activity.url ? (
+                    <a
+                      href={activity.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 hover:underline"
+                    >
+                      {activity.name}
+                      <ExternalLink className="size-3" />
+                    </a>
+                  ) : (
+                    activity.name
+                  )}
+                </ItemTitle>
+                {activityFriendMap[activity.name] && (
                   <ItemDescription>
-                    {activityFriendMap[name].join(", ")}
+                    {activityFriendMap[activity.name].join(", ")}
                   </ItemDescription>
                 )}
               </ItemContent>
@@ -86,7 +85,7 @@ export function ActivityList({
                   type="button"
                   variant="ghost"
                   size="icon"
-                  onClick={() => handleRemove(name)}
+                  onClick={() => handleRemove(activity.name)}
                 >
                   <Trash />
                 </Button>
@@ -95,21 +94,10 @@ export function ActivityList({
           ))}
         </ItemGroup>
       )}
-      <div className="flex gap-2">
-        <Input
-          ref={inputRef}
-          placeholder="Add an activity"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault()
-              handleAdd()
-            }
-          }}
-        />
-        <Button type="button" variant="outline" onClick={handleAdd}>
-          Add
-        </Button>
-      </div>
+      <ActivityForm
+        visitId={visitId}
+        onAdded={(name) => dispatchOptimistic({ type: "add", name })}
+      />
     </div>
   )
 }

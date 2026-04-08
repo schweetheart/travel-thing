@@ -36,3 +36,7 @@ pnpm-debug.log*
 next-env.d.ts
 
 /generated/prisma
+
+# OpenNext
+.open-next
+.wrangler

@@ -19,7 +19,7 @@ import {
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import { type DateRange } from "react-day-picker"
-import { cn } from "@/lib/utils"
+import { cn, formatDate } from "@/lib/utils"
 
 export type Visit = {
   id: number
@@ -138,7 +138,17 @@ export function TripForm({ visit }: { visit?: Visit }) {
                 <DrawerContent>
                   <div className="mx-auto w-full max-w-lg">
                     <DrawerHeader>
-                      <DrawerTitle>Pick your trip dates</DrawerTitle>
+                      <DrawerTitle>
+                        {field.value === undefined ? (
+                          "Select trip dates"
+                        ) : (
+                          <>
+                            {field.value?.from && formatDate(field.value.from)}{" "}
+                            {field.value?.to &&
+                              `- ${formatDate(field.value.to)}`}
+                          </>
+                        )}
+                      </DrawerTitle>
                     </DrawerHeader>
                     <div className="overflow-y-auto px-4">
                       <Calendar
@@ -153,7 +163,7 @@ export function TripForm({ visit }: { visit?: Visit }) {
                     </div>
                     <DrawerFooter>
                       <DrawerClose asChild>
-                        <Button>Done</Button>
+                        <Button>Share Trip</Button>
                       </DrawerClose>
                     </DrawerFooter>
                   </div>

@@ -3,26 +3,48 @@ import { getCurrentUserId } from "@/lib/auth"
 import { userRepository } from "@/lib/repositories/user-repository"
 
 import Link from "next/link"
+import Image from "next/image"
 
-import { House, Instagram } from "lucide-react"
+import { Dot, House, Instagram } from "lucide-react"
 import { Button } from "./ui/button"
+import { FileUpload } from "./upload-image"
 
 export const ProfileHeader = async ({ userId }: { userId: number }) => {
   const currentUserId = await getCurrentUserId()
 
-  // get home city of current user
   const user = await userRepository.findById(userId)
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="size-40 overflow-hidden rounded-full bg-accent">
-        <img src={"https://picsum.photos/200"} alt="Profile picture" />
+    <div className="flex flex-col items-center gap-4">
+      <div className="relative size-40 overflow-hidden rounded-full bg-accent">
+        {user?.profileImageKey && (
+          <Image
+            fill={true}
+            sizes="230px"
+            src={
+              process.env.R2_BUCKET_URL + "/" + user?.profileImageKey ||
+              "/default-profile.png"
+            }
+            alt={`${user?.name}'s profile picture`}
+          />
+        )}
       </div>
+      <FileUpload />
 
       <div className="text-2xl font-bold">{user?.name}</div>
-      <span className="flex items-center gap-1 text-sm text-muted-foreground">
-        <House /> {user?.homeCity}
-      </span>
+      <div className="flex items-center gap-0.5">
+        <span className="flex items-center gap-1">
+          <House className="size-4" /> {user?.homeCity}
+        </span>
+        <Dot />
+        <span>
+          Joined{" "}
+          {user?.createdAt.toLocaleDateString("us-en", {
+            month: "short",
+            year: "2-digit",
+          })}
+        </span>
+      </div>
 
       {user?.instagramHandle ? (
         <Button variant={"outline"} asChild>
@@ -33,16 +55,22 @@ export const ProfileHeader = async ({ userId }: { userId: number }) => {
             <Instagram /> {user.instagramHandle}
           </Link>
         </Button>
-      ) : (
+      ) : user?.id === currentUserId ? (
         <Button variant={"outline"} asChild>
           <Link href="/profile">
             <Instagram /> Add instagram
           </Link>
         </Button>
-      )}
+      ) : null}
       {currentUserId === userId && (
         <Button variant={"outline"} asChild>
-          <Link href={`/${userId}/edit`}>Edit</Link>
+          <Link href={`/${userId}/edit`}>Edit Profile</Link>
+        </Button>
+      )}
+
+      {currentUserId === null && (
+        <Button variant={"outline"} asChild>
+          <Link href="/login">Log in to see more</Link>
         </Button>
       )}
     </div>

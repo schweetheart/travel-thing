@@ -60,7 +60,10 @@ export default async function VisitDetailPage({
   if (!visit) notFound()
 
   const friendsOverlapping = await visitRepository.overlappingVisits(id)
-  const activities = visit.activities.map((a) => a.activity.name)
+  const activities = visit.activities.map((a) => ({
+    name: a.activity.name,
+    url: a.activity.url,
+  }))
 
   // Map activity name → list of friend names doing that activity
   const activityFriendMap: Record<string, string[]> = {}
@@ -73,13 +76,15 @@ export default async function VisitDetailPage({
     }
   }
 
+  const activityNames = activities.map((a) => a.name)
+
   const friendActivities = Array.from(
     new Set(
       friendsOverlapping.flatMap((ov) =>
         ov.activities.map((a) => a.activity.name)
       )
     )
-  ).filter((name) => !activities.includes(name))
+  ).filter((name) => !activityNames.includes(name))
 
   const showEditButtons = visit.userId === userId
   const canSuggestActivities =
@@ -113,6 +118,29 @@ export default async function VisitDetailPage({
           initialActivities={activities}
           activityFriendMap={activityFriendMap}
         />
+      </div>
+      <div>
+        <form action={createVisitAction}>
+          <input type="hidden" name="city" value={tripName} />
+          <input
+            type="hidden"
+            name="arriveAt"
+            value={visit.arriveAt.toISOString()}
+          />
+          <input
+            type="hidden"
+            name="departAt"
+            value={visit.departAt.toISOString()}
+          />
+          <input
+            type="hidden"
+            name="displayName"
+            value={visit.displayName ?? ""}
+          />
+          <Button type="submit" variant="outline">
+            Copy into new Visit
+          </Button>
+        </form>
       </div>
 
       <div>
@@ -148,14 +176,20 @@ export default async function VisitDetailPage({
             {friendsOverlapping.map((ov) => {
               return (
                 <Item key={ov.id} variant={"outline"} asChild>
-                  <Link href={`/${ov.user.id}`} key={ov.id}>
+                  <Link href={`/visit/${ov.id}`} key={ov.id}>
                     <ItemMedia variant="image">
-                      <img src="https://picsum.photos/200" />
+                      <img
+                        src="https://picsum.photos/200"
+                        alt={ov.user.name || `User #${ov.user.id}`}
+                      />
                     </ItemMedia>
                     <ItemContent>
                       <ItemTitle>
                         {ov.user.name || `User #${ov.user.id}`}
                       </ItemTitle>
+                      <ItemDescription>
+                        {formatDateRange(ov.arriveAt, ov.departAt)}
+                      </ItemDescription>
                     </ItemContent>
                   </Link>
                 </Item>

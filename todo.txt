@@ -3,6 +3,7 @@
  - I have a big social circle. And while I might not know the person well enough to intentionally book a trip with them, I do want to know when they are in the same place as me, I want the opportunity to catchup with them.
  - On instagram I might just add a note, but this doesn't last long, or it happens the day before. theres not enough notice. Eg my trip to london and berlin.
  - Its also an excuse to catch up with party people (lol) (or I just want an invite to an afters)
+ - Im going to world pride, but I don't know what events my friends are going to.
 
  Privacy
     - Public (Everyone can view your upcoming trips and home)
@@ -21,6 +22,9 @@
     - We could share anonmous aggegrate data
         - Eg heatmap of where people are traveling at a certain date
         - 100 people traveling on this day (NYC is popular duriong these dates)
+
+    - Twitter content creators / only fans models often want to collab, but don't know whos actually in the city.
+    - Its kind of an in-between of find-my-friends
 
 
 
@@ -49,6 +53,8 @@ UI
 - We should hide trips that have occrred in the past
 - We should highlight a trip that is happening right now(Should we update the map to show you at the location)
 - When someone views your profile, should we highlight the current trip that yoiu are on / your current locaiton. (swap between the home logo)
+- How should we let users know when they are going to see new friends on a trip. (Notifications
+)
 
 Partiful observations
 - The event link itself is basically unguessable (same as profiles). It shows some basic inforamtion about the hosts and event, but you cant see sensitive things like the location or who is going
@@ -57,3 +63,15 @@ Partiful observations
 Concernt
 - People who dont travel as much feel marganlized
 - Should this be something that you show off with?
+
+
+
+
+To Do 
+- Image upload for profile picture
+- Brainstorm how to handle "Home" status / crossovers
+- Onboarding
+- Non-Functional
+    - Login
+    - Friends / Followers / Privacy
+    - Make Stephen and Jacob add travels
