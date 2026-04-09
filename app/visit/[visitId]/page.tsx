@@ -33,16 +33,10 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { MapPin, MoreVertical, Section } from "lucide-react"
-
-function formatDate(d: Date) {
-  return d.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  })
-}
+import Image from "next/image"
+import { MapPin, MoreVertical, Omega, Section } from "lucide-react"
+import { getUrl } from "@/lib/storage"
+import { UserAvatar } from "@/components/user-avatar"
 
 export default async function VisitDetailPage({
   params,
@@ -59,7 +53,8 @@ export default async function VisitDetailPage({
   const visit = await visitRepository.findById(id)
   if (!visit) notFound()
 
-  const friendsOverlapping = await visitRepository.overlappingVisits(id)
+  const friendsOverlapping = await visitRepository.overlappingVisits(visit.id)
+
   const activities = visit.activities.map((a) => ({
     name: a.activity.name,
     url: a.activity.url,
@@ -87,18 +82,13 @@ export default async function VisitDetailPage({
   ).filter((name) => !activityNames.includes(name))
 
   const showEditButtons = visit.userId === userId
-  const canSuggestActivities =
-    friendActivities.length > 0 && activities && userId
-
-  const tripName = visit.displayName ?? visit.location.city
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6 p-6">
-      <VisitHeader visit={visit} />
-      <Item asChild className="group" variant={"outline"}>
+      <Item asChild className="group">
         <Link href={`/${visit.user.id}`}>
           <ItemMedia variant="image">
-            <img src={`https://picsum.photos/200`} alt={visit.location.city} />
+            <UserAvatar user={visit.user} />
           </ItemMedia>
           <ItemContent>
             <ItemTitle className="group-hover:underline">
@@ -110,18 +100,69 @@ export default async function VisitDetailPage({
           </ItemContent>
         </Link>
       </Item>
+      <VisitHeader visit={visit} showEditButtons={showEditButtons} />
+      <OverlappingTrips tripId={visit.id} />
+
       <div>
-        {/* <SectionTitle>Activities</SectionTitle> */}
+        <SectionTitle>Plans</SectionTitle>
 
         <ActivityList
           visitId={visit.id}
           initialActivities={activities}
           activityFriendMap={activityFriendMap}
+          canEdit={showEditButtons}
         />
       </div>
-      <div>
+      {showEditButtons && friendActivities.length > 0 && (
+        <div>
+          <SectionTitle>Suggested</SectionTitle>
+          <div className="text-sm text-muted-foreground">
+            Based on what other friends are doing
+          </div>
+          <ItemGroup>
+            {friendActivities.map((name) => (
+              <Item key={name} variant={"outline"}>
+                <ItemContent>
+                  <ItemTitle>{name}</ItemTitle>
+                  {activityFriendMap[name] && (
+                    <ItemDescription>
+                      {activityFriendMap[name].join(", ")}
+                    </ItemDescription>
+                  )}
+                </ItemContent>
+              </Item>
+            ))}
+          </ItemGroup>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const SectionTitle = ({ children }: { children: React.ReactNode }) => (
+  <h2 className="text-xl font-bold">{children}</h2>
+)
+
+const VisitDrawer = ({
+  visit,
+  showEditButtons,
+}: {
+  visit: NonNullable<Awaited<ReturnType<typeof visitRepository.findById>>>
+  showEditButtons: boolean
+}) => (
+  <Drawer>
+    <DrawerTrigger asChild>
+      <Button variant={"ghost"} size="icon">
+        <MoreVertical />
+      </Button>
+    </DrawerTrigger>
+    <DrawerContent>
+      <DrawerHeader className="sr-only">
+        <DrawerTitle>Manage Visit</DrawerTitle>
+      </DrawerHeader>
+      <div className="flex flex-col gap-2 p-4">
         <form action={createVisitAction}>
-          <input type="hidden" name="city" value={tripName} />
+          <input type="hidden" name="city" value={visit.location.city} />
           <input
             type="hidden"
             name="arriveAt"
@@ -137,99 +178,21 @@ export default async function VisitDetailPage({
             name="displayName"
             value={visit.displayName ?? ""}
           />
-          <Button type="submit" variant="outline">
+          <Button type="submit" variant="outline" className="w-full">
             Copy into new Visit
           </Button>
         </form>
-      </div>
-
-      <div>
-        <SectionTitle>Suggested</SectionTitle>
-        <div className="text-sm text-muted-foreground">
-          Based on what other friends are doing
-        </div>
-        <ItemGroup>
-          {friendActivities.map((name) => (
-            <Item key={name} variant={"outline"}>
-              <ItemContent>
-                <ItemTitle>{name}</ItemTitle>
-                {activityFriendMap[name] && (
-                  <ItemDescription>
-                    {activityFriendMap[name].join(", ")}
-                  </ItemDescription>
-                )}
-              </ItemContent>
-            </Item>
-          ))}
-        </ItemGroup>
-      </div>
-
-      <div>
-        <SectionTitle>Whos there</SectionTitle>
-        {friendsOverlapping.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No one else is visiting {visit.location.city} during this time.
-            Feels lowkey solo rn 😔
-          </p>
-        ) : (
-          <ItemGroup>
-            {friendsOverlapping.map((ov) => {
-              return (
-                <Item key={ov.id} variant={"outline"} asChild>
-                  <Link href={`/visit/${ov.id}`} key={ov.id}>
-                    <ItemMedia variant="image">
-                      <img
-                        src="https://picsum.photos/200"
-                        alt={ov.user.name || `User #${ov.user.id}`}
-                      />
-                    </ItemMedia>
-                    <ItemContent>
-                      <ItemTitle>
-                        {ov.user.name || `User #${ov.user.id}`}
-                      </ItemTitle>
-                      <ItemDescription>
-                        {formatDateRange(ov.arriveAt, ov.departAt)}
-                      </ItemDescription>
-                    </ItemContent>
-                  </Link>
-                </Item>
-              )
-            })}
-          </ItemGroup>
+        {showEditButtons && (
+          <>
+            <Button variant="outline" asChild>
+              <Link href={`/visit/${visit.id}/edit` as Route}>Edit</Link>
+            </Button>
+            <form action={deleteVisitAction}>
+              <input type="hidden" name="id" value={visit.id} />
+              <DeleteVisitButton />
+            </form>
+          </>
         )}
-      </div>
-
-      {
-        // We could show some fun stats, eg how many times you have been to this location
-      }
-    </div>
-  )
-}
-
-const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h2 className="text-xl font-bold">{children}</h2>
-)
-
-const VisitDrawer = ({ id }: { id: string }) => (
-  <Drawer>
-    <DrawerTrigger asChild>
-      <Button variant={"ghost"} size="icon">
-        <MoreVertical />
-      </Button>
-    </DrawerTrigger>
-    <DrawerContent>
-      <DrawerHeader className="sr-only">
-        <DrawerTitle>Manage Visit</DrawerTitle>
-      </DrawerHeader>
-      <div className="flex flex-col gap-2 p-4">
-        <Button variant="outline" asChild>
-          <Link href={`/visit/${id}/edit` as Route}>Edit</Link>
-        </Button>
-
-        <form action={deleteVisitAction}>
-          <input type="hidden" name="id" value={id} />
-          <DeleteVisitButton />
-        </form>
       </div>
     </DrawerContent>
   </Drawer>
@@ -237,8 +200,10 @@ const VisitDrawer = ({ id }: { id: string }) => (
 
 const VisitHeader = ({
   visit,
+  showEditButtons,
 }: {
   visit: NonNullable<Awaited<ReturnType<typeof visitRepository.findById>>>
+  showEditButtons: boolean
 }) => (
   <div className="flex justify-between gap-2">
     <div>
@@ -252,7 +217,44 @@ const VisitHeader = ({
 
     <div className="flex items-center gap-2">
       <ShareButton />
-      <VisitDrawer id={visit.id.toString()} />
+      <VisitDrawer visit={visit} showEditButtons={showEditButtons} />
     </div>
   </div>
 )
+
+const OverlappingTrips = async ({ tripId }: { tripId: number }) => {
+  const friendsOverlapping = await visitRepository.overlappingVisits(tripId)
+
+  return (
+    <div>
+      <SectionTitle>Also there</SectionTitle>
+      {friendsOverlapping.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          We will notify you when friends have trips that overlap with this one.
+        </p>
+      ) : (
+        <ItemGroup>
+          {friendsOverlapping.map((ov) => {
+            return (
+              <Item key={ov.id} asChild>
+                <Link href={`/visit/${ov.id}`} key={ov.id}>
+                  <ItemMedia variant="image">
+                    <UserAvatar user={ov.user} />
+                  </ItemMedia>
+                  <ItemContent>
+                    <ItemTitle>
+                      {ov.user.name || `User #${ov.user.id}`}
+                    </ItemTitle>
+                    <ItemDescription>
+                      {formatDateRange(ov.arriveAt, ov.departAt)}
+                    </ItemDescription>
+                  </ItemContent>
+                </Link>
+              </Item>
+            )
+          })}
+        </ItemGroup>
+      )}
+    </div>
+  )
+}

@@ -54,13 +54,13 @@ export default async function ProfilePage() {
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="instagramHandle">Instagram </FieldLabel>
+            <FieldLabel htmlFor="instagramHandle">Instagram</FieldLabel>
             <InputGroup>
               <InputGroupInput
                 id="instagramHandle"
                 name="instagramHandle"
                 defaultValue={user.instagramHandle ?? ""}
-                placeholder="e.g. @yourhandle"
+                placeholder="@yourhandle"
               />
               <InputGroupAddon>
                 <Instagram />

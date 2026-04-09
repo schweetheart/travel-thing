@@ -2,7 +2,7 @@ import { Suspense, type ReactNode } from "react"
 
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Home } from "lucide-react"
+import { Home, Plus } from "lucide-react"
 import { UserAvatar } from "@/components/user-nav"
 
 type ProfileLayoutProps = {
@@ -20,11 +20,12 @@ export default async function ProfileLayout({ children }: ProfileLayoutProps) {
         </Button>
         <div className="flex items-center gap-2">
           <Button asChild variant={"outline"}>
-            <Link href="/create">Create</Link>
+            <Link href="/create">
+              <Plus />
+              Create
+            </Link>
           </Button>
-          <Suspense
-            fallback={<div className="size-8 rounded-full bg-accent" />}
-          >
+          <Suspense fallback={<div>Loading</div>}>
             <UserAvatar />
           </Suspense>
         </div>

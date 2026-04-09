@@ -16,8 +16,7 @@ import {
   EmptyTitle,
   EmptyDescription,
 } from "@/components/ui/empty"
-import { TravelViewSwitcher } from "@/components/travel-view-switcher"
-import { ShareButton } from "@/components/share-button"
+import { Separator } from "@/components/ui/separator"
 
 type ProfilePageProps = PageProps<"/[id]">
 
@@ -37,7 +36,6 @@ export default async function ProfilePage({
   searchParams,
 }: ProfilePageProps) {
   const { id } = await params
-  const { view } = await searchParams
 
   if (isNaN(parseInt(id, 10))) notFound()
 
@@ -45,91 +43,35 @@ export default async function ProfilePage({
   if (!currentUserId) notFound()
 
   const profileUserId = parseInt(id, 10)
-  const isOwnProfile = currentUserId === profileUserId
-  const currentView = view === "mutual" && !isOwnProfile ? "mutual" : "all"
 
-  const [trips, pastTrips] = await Promise.all([
-    visitRepository.findByUser(profileUserId, {
-      upcomingOnly: true,
-      viewerUserId: currentUserId,
-    }),
-    visitRepository.findByUser(profileUserId, {
-      upcomingOnly: false,
-      viewerUserId: currentUserId,
-    }),
-  ])
-
-  if (!trips) notFound()
+  const trips = await visitRepository.findByUser(profileUserId, {
+    upcomingOnly: true,
+    viewerUserId: currentUserId,
+  })
 
   const now = new Date()
   const currentTrip = trips.find((t) => t.arriveAt <= now && t.departAt >= now)
 
-  const upcomingTrips = trips.filter((t) => t !== currentTrip)
-  const allTrips = [...upcomingTrips]
-  const mutualTrips = allTrips.filter((t) => t.viewerOverlaps)
-
-  const displayedTrips = currentView === "mutual" ? mutualTrips : allTrips
-
   return (
     <div>
-      <div className="bg-accent/50 p-8">
+      <div className="p-8">
         <Suspense fallback={<LoadingSkeleton />}>
           <ProfileHeader userId={profileUserId} />
         </Suspense>
       </div>
+      <Separator />
       {currentTrip && (
-        <div className="mx-auto max-w-3xl rounded-lg bg-accent/50 bg-amber-300 p-6">
+        <div className="mx-auto max-w-3xl rounded-lg bg-amber-300 p-6">
           <Trips trips={[currentTrip]} />
         </div>
       )}
 
-      <div className="mx-auto max-w-3xl p-6">
-        {isOwnProfile && (
-          <div className="mb-4 flex justify-end">
-            <ShareButton />
-          </div>
-        )}
-        <SectionHeader>
-          {isOwnProfile ? (
-            <div className="flex justify-between gap-2">
-              <Button
-                variant={"secondary"}
-                className="border-color-accent border"
-              >
-                Upcoming
-                <span className="text-muted-foreground">
-                  {upcomingTrips.length}
-                </span>
-              </Button>
-              <Button variant={"secondary"}>
-                Past
-                <span className="text-muted-foreground">
-                  {pastTrips.length}
-                </span>
-              </Button>
-            </div>
-          ) : (
-            <TravelViewSwitcher
-              allCount={allTrips.length}
-              mutualCount={mutualTrips.length}
-              currentView={currentView}
-            />
-          )}
-          {isOwnProfile && (
-            <Button asChild>
-              <Link href={"/create"}>
-                <Plus /> Add trip
-              </Link>
-            </Button>
-          )}
-        </SectionHeader>
-      </div>
       <div className="mt-6 px-3">
-        {displayedTrips.length === 0 ? (
+        {trips.length === 0 ? (
           <EmptyTravel />
         ) : (
           <Suspense fallback={<LoadingSkeleton />}>
-            <Trips trips={displayedTrips} />
+            <Trips trips={trips} />
           </Suspense>
         )}
       </div>
@@ -143,7 +85,11 @@ const EmptyTravel = () => (
       <EmptyMedia variant="icon">
         <MapPin />
       </EmptyMedia>
-      <EmptyTitle>Add a trip</EmptyTitle>
+      <EmptyTitle>
+        <Button asChild>
+          <Link href="/create">Add a trip</Link>
+        </Button>
+      </EmptyTitle>
       <EmptyDescription>
         Add trips and see when youll be in the same place as your friends
       </EmptyDescription>
@@ -158,8 +104,4 @@ const LoadingSkeleton = () => (
     <Skeleton className="h-4 w-full rounded" />
     <Skeleton className="h-4 w-full rounded" />
   </div>
-)
-
-const SectionHeader = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex items-center justify-between">{children}</div>
 )

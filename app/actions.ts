@@ -5,26 +5,28 @@ import { getCurrentUserId } from "@/lib/auth"
 import { visitRepository } from "@/lib/repositories/visit-repository"
 import { redirect } from "next/navigation"
 import { Route } from "next"
+import z from "zod"
 
 export async function createVisitAction(formData: FormData) {
   const userId = await getCurrentUserId()
   if (!userId) return
 
-  const city = (formData.get("city") as string).trim()
-  const arriveAt = new Date(formData.get("arriveAt") as string)
-  const departAt = new Date(formData.get("departAt") as string)
-  const displayName =
-    ((formData.get("displayName") as string) ?? "").trim() || null
-
-  if (!city || isNaN(arriveAt.getTime()) || isNaN(departAt.getTime())) return
-
-  const created = await visitRepository.create({
-    city,
-    arriveAt,
-    departAt,
-    userId,
-    displayName,
+  // validate with zod
+  const createVisitSchema = z.object({
+    city: z.string().min(1, "City is required"),
+    arriveAt: z.coerce.date(),
+    departAt: z.coerce.date(),
+    displayName: z.string().optional(),
   })
+
+  const validated = createVisitSchema.parse({
+    city: formData.get("city"),
+    arriveAt: formData.get("arriveAt"),
+    departAt: formData.get("departAt"),
+    displayName: formData.get("displayName"),
+  })
+
+  const created = await visitRepository.create({ ...validated, userId })
   revalidatePath("/")
   redirect(`/visit/${created.id}` as Route)
 }

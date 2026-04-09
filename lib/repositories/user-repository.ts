@@ -24,4 +24,8 @@ export const userRepository = {
       data,
     })
   },
+
+  async delete(id: number) {
+    return prisma.user.delete({ where: { id } })
+  },
 }

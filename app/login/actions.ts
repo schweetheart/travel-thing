@@ -22,3 +22,19 @@ export async function logoutAction() {
   cookieStore.delete("userId")
   redirect("/login")
 }
+
+export async function deleteUserAction(formData: FormData) {
+  const userId = parseInt(formData.get("userId") as string, 10)
+  if (isNaN(userId)) return
+
+  await userRepository.delete(userId)
+
+  // If the deleted user is currently logged in, log them out
+  const cookieStore = await cookies()
+  const currentId = parseInt(cookieStore.get("userId")?.value ?? "", 10)
+  if (currentId === userId) {
+    cookieStore.delete("userId")
+  }
+
+  redirect("/login")
+}

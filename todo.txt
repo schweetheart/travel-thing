@@ -75,3 +75,6 @@ To Do
     - Login
     - Friends / Followers / Privacy
     - Make Stephen and Jacob add travels
+
+
+    "Join"

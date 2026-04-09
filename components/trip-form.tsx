@@ -80,6 +80,13 @@ export function TripForm({ visit }: { visit?: Visit }) {
     <form onSubmit={handleSubmit(onSubmit)}>
       <FieldSet>
         <Field>
+          <FieldLabel htmlFor="displayName">What</FieldLabel>
+          <Input
+            placeholder={cityValue ? cityValue : "Display name (optional)"}
+            {...register("displayName")}
+          />
+        </Field>
+        <Field>
           <FieldLabel htmlFor="city">Where</FieldLabel>
           <Input
             placeholder="Where"
@@ -91,14 +98,6 @@ export function TripForm({ visit }: { visit?: Visit }) {
               {errors.city.message}
             </span>
           )}
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="displayName">Display name</FieldLabel>
-          <Input
-            placeholder={cityValue ? cityValue : "Display name (optional)"}
-            {...register("displayName")}
-          />
         </Field>
 
         <Field>
@@ -163,7 +162,7 @@ export function TripForm({ visit }: { visit?: Visit }) {
                     </div>
                     <DrawerFooter>
                       <DrawerClose asChild>
-                        <Button>Share Trip</Button>
+                        <Button>Done</Button>
                       </DrawerClose>
                     </DrawerFooter>
                   </div>
@@ -187,7 +186,7 @@ export function TripForm({ visit }: { visit?: Visit }) {
               : "Adding..."
             : isEditing
               ? "Save"
-              : "Add Trip"}
+              : "Share"}
         </Button>
       </div>
     </form>

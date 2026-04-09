@@ -22,7 +22,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
   }
 
   return (
-    <Button variant="secondary" onClick={onClick}>
+    <Button variant="outline" onClick={onClick}>
       {copied ? <Check /> : <Share2 />}
       {copied ? "Copied!" : text}
     </Button>

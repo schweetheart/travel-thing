@@ -3,41 +3,38 @@ import { getCurrentUserId } from "@/lib/auth"
 import { userRepository } from "@/lib/repositories/user-repository"
 
 import Link from "next/link"
-import Image from "next/image"
 
 import { Dot, House, Instagram } from "lucide-react"
 import { Button } from "./ui/button"
 import { FileUpload } from "./upload-image"
-import { getUrl } from "@/lib/storage"
+import { ShareButton } from "./share-button"
+import { AvatarContent } from "./user-avatar"
+import { Avatar } from "./ui/avatar"
 
 export const ProfileHeader = async ({ userId }: { userId: number }) => {
   const currentUserId = await getCurrentUserId()
 
   const user = await userRepository.findById(userId)
 
+  if (!user) return null
+
+  const isOwnProfile = currentUserId === userId
+
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="relative">
-        <div className="relative size-40 overflow-hidden rounded-full bg-accent">
-          {user?.profileImageKey && (
-            <Image
-              fill={true}
-              objectFit="cover"
-              sizes="230px"
-              src={getUrl(user.profileImageKey)}
-              alt={`${user?.name}'s profile picture`}
-            />
-          )}
-        </div>
+        <Avatar className="size-40">
+          <AvatarContent user={user} size={200} />
+        </Avatar>
         <div className="absolute right-0 bottom-0">
           <FileUpload />
         </div>
       </div>
 
-      <div className="text-2xl font-bold">{user?.name}</div>
+      <div className="text-2xl font-bold">{user.name}</div>
       <div className="flex items-center gap-0.5">
         <span className="flex items-center gap-1">
-          <House className="size-4" /> {user?.homeCity}
+          <House className="size-4" /> {user.homeCity}
         </span>
         <Dot />
         <span>
@@ -64,11 +61,21 @@ export const ProfileHeader = async ({ userId }: { userId: number }) => {
             <Instagram /> Add instagram
           </Link>
         </Button>
-      ) : null}
-      {currentUserId === userId && (
+      ) : user?.id === currentUserId ? (
         <Button variant={"outline"} asChild>
-          <Link href={`/${userId}/edit`}>Edit Profile</Link>
+          <Link href="/profile">
+            <Instagram /> Add instagram
+          </Link>
         </Button>
+      ) : null}
+      {isOwnProfile && (
+        <div className="mb-4 flex justify-end gap-2">
+          <Button variant={"outline"} asChild>
+            <Link href={`/${userId}/edit`}>Edit Profile</Link>
+          </Button>
+
+          <ShareButton />
+        </div>
       )}
 
       {currentUserId === null && (

@@ -1,6 +1,6 @@
 import { userRepository } from "@/lib/repositories/user-repository"
 import { getCurrentUserId } from "@/lib/auth"
-import { setUserAction, logoutAction } from "./actions"
+import { setUserAction, logoutAction, deleteUserAction } from "./actions"
 import {
   Card,
   CardContent,
@@ -93,18 +93,35 @@ export default async function LoginPage() {
                     <TableCell>{user.name || "—"}</TableCell>
                     <TableCell>{user.homeCity || "—"}</TableCell>
                     <TableCell>
-                      {user.id === currentUserId ? (
-                        <Badge className="border border-solid border-green-100 bg-green-100 text-green-600">
-                          Active
-                        </Badge>
-                      ) : (
-                        <form action={setUserAction}>
+                      <div className="flex items-center gap-1">
+                        {user.id === currentUserId ? (
+                          <Badge className="border border-solid border-green-100 bg-green-100 text-green-600">
+                            Active
+                          </Badge>
+                        ) : (
+                          <form action={setUserAction}>
+                            <input
+                              type="hidden"
+                              name="userId"
+                              value={user.id}
+                            />
+                            <Button variant="link" size="sm" type="submit">
+                              Switch
+                            </Button>
+                          </form>
+                        )}
+                        <form action={deleteUserAction}>
                           <input type="hidden" name="userId" value={user.id} />
-                          <Button variant="link" size="sm" type="submit">
-                            Switch
+                          <Button
+                            variant="link"
+                            size="sm"
+                            type="submit"
+                            className="text-destructive hover:text-destructive"
+                          >
+                            Delete
                           </Button>
                         </form>
-                      )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

@@ -27,12 +27,14 @@ export function ActivityList({
   visitId,
   initialActivities,
   activityFriendMap = {},
+  canEdit = false,
 }: {
   visitId: number
   initialActivities: ActivityData[]
   activityFriendMap?: Record<string, string[]>
+  canEdit?: boolean
 }) {
-  const [isPending, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
   const [activities, dispatchOptimistic] = useOptimistic(
     initialActivities,
     (state, action: OptimisticAction) => {
@@ -54,50 +56,56 @@ export function ActivityList({
 
   return (
     <div className="flex flex-col gap-4">
-      {activities.length > 0 && (
-        <ItemGroup>
-          {activities.map((activity) => (
-            <Item key={activity.name} variant={"outline"}>
-              <ItemContent>
-                <ItemTitle>
-                  {activity.url ? (
-                    <a
-                      href={activity.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 hover:underline"
-                    >
-                      {activity.name}
-                      <ExternalLink className="size-3" />
-                    </a>
-                  ) : (
-                    activity.name
-                  )}
-                </ItemTitle>
-                {activityFriendMap[activity.name] && (
-                  <ItemDescription>
-                    {activityFriendMap[activity.name].join(", ")}
-                  </ItemDescription>
-                )}
-              </ItemContent>
-              <ItemActions>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleRemove(activity.name)}
-                >
-                  <Trash />
-                </Button>
-              </ItemActions>
-            </Item>
-          ))}
-        </ItemGroup>
+      {activities.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          Share what your doing while away
+        </p>
       )}
-      <ActivityForm
-        visitId={visitId}
-        onAdded={(name) => dispatchOptimistic({ type: "add", name })}
-      />
+      <ItemGroup>
+        {activities.map((activity) => (
+          <Item key={activity.name} variant={"outline"}>
+            <ItemContent>
+              <ItemTitle>
+                {activity.url ? (
+                  <a
+                    href={activity.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 hover:underline"
+                  >
+                    {activity.name}
+                    <ExternalLink className="size-3" />
+                  </a>
+                ) : (
+                  activity.name
+                )}
+              </ItemTitle>
+              {activityFriendMap[activity.name] && (
+                <ItemDescription>
+                  {activityFriendMap[activity.name].join(", ")}
+                </ItemDescription>
+              )}
+            </ItemContent>
+            <ItemActions>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => handleRemove(activity.name)}
+              >
+                <Trash />
+              </Button>
+            </ItemActions>
+          </Item>
+        ))}
+      </ItemGroup>
+
+      {canEdit && (
+        <ActivityForm
+          visitId={visitId}
+          onAdded={(name) => dispatchOptimistic({ type: "add", name })}
+        />
+      )}
     </div>
   )
 }

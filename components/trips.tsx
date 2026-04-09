@@ -9,17 +9,12 @@ import {
   ItemMedia,
   ItemDescription,
 } from "./ui/item"
-import {
-  Avatar,
-  AvatarBadge,
-  AvatarFallback,
-  AvatarGroup,
-  AvatarGroupCount,
-  AvatarImage,
-} from "./ui/avatar"
+import { AvatarGroup, AvatarGroupCount } from "./ui/avatar"
 import { formatDateRange, getFirstName } from "@/lib/utils"
 import { Badge } from "./ui/badge"
-import { Plane } from "lucide-react"
+import { getUrl } from "@/lib/storage"
+import { getImageProps } from "next/image"
+import { UserAvatar } from "./user-avatar"
 
 function Dot() {
   return <span className="text-muted-foreground">·</span>
@@ -93,46 +88,32 @@ export const Trips = async ({ trips }: { trips: Trips }) => {
                         </div>
 
                         <ItemDescription>
-                          <div className="overflow-hidden">
-                            <span className="flex items-center gap-1.5">
-                              {activities.map((name, i) => (
-                                <span
-                                  key={name}
-                                  className="flex shrink-0 items-center gap-1.5"
-                                >
-                                  {i > 0 && <Dot />}
-                                  {name}
-                                </span>
-                              ))}
-                            </span>
-                          </div>
+                          <span className="flex items-center gap-1.5">
+                            {activities.map((name, i) => (
+                              <span
+                                key={name}
+                                className="flex shrink-0 items-center gap-1.5"
+                              >
+                                {i > 0 && <Dot />}
+                                {name}
+                              </span>
+                            ))}
+                          </span>
                         </ItemDescription>
 
                         {visit.location.visits.length > 0 && (
                           <div className="mt-1 flex items-center gap-2">
                             <AvatarGroup>
-                              {visit.location.visits.map((v) => (
-                                <Avatar key={v.id} size="sm">
-                                  <AvatarImage
-                                    src={"https://picsum.photos/200"}
-                                  />
-                                  <AvatarBadge>
-                                    <Plane />
-                                  </AvatarBadge>
-                                  <AvatarFallback>
-                                    {v.user.name
-                                      ? v.user.name.charAt(0).toUpperCase()
-                                      : "?"}
-                                  </AvatarFallback>
-                                </Avatar>
-                              ))}
+                              {visit.location.visits.map((v) => {
+                                return <UserAvatar key={v.id} user={v.user} />
+                              })}
                               {visit.location._count.visits > 3 && (
                                 <AvatarGroupCount>
                                   +{visit.location._count.visits - 3}
                                 </AvatarGroupCount>
                               )}
                             </AvatarGroup>
-                            <span className="text-sm text-muted-foreground">
+                            <span className="text-muted-foreground">
                               {visit.location.visits
                                 .map((v) => getFirstName(v.user?.name ?? "?"))
                                 .join(", ")}
@@ -144,10 +125,10 @@ export const Trips = async ({ trips }: { trips: Trips }) => {
                       </div>
 
                       <div className="flex flex-col items-end gap-0.5">
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-muted-foreground">
                           {formatDateRange(visit.arriveAt, visit.departAt)}
                         </span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-muted-foreground">
                           {visit.location.city}
                         </span>
                       </div>

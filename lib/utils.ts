@@ -29,3 +29,23 @@ export function formatDateRange(start: Date, end: Date) {
 export const getFirstName = (fullName: string) => {
   return fullName.split(" ")[0]
 }
+
+export const getInitials = (fullName?: string | null, maxChars = 2) => {
+  if (!fullName || typeof fullName !== "string") return ""
+
+  const parts = fullName.trim().split(/\s+/).filter(Boolean)
+
+  if (parts.length === 0) return ""
+
+  if (parts.length === 1) {
+    // Single name: take first letter (or more if maxChars>1)
+    return parts[0].slice(0, maxChars).toUpperCase()
+  }
+
+  // Multi-part name: take first letter of first and last parts up to maxChars
+  const first = parts[0][0] || ""
+  const last = parts[parts.length - 1][0] || ""
+  const initials = (first + last).slice(0, maxChars)
+
+  return initials.toUpperCase()
+}

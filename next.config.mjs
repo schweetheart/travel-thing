@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typedRoutes: true,
+  allowedDevOrigins: ["192.168.1.243"],
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb",
