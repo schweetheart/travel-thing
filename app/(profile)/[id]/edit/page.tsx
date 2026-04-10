@@ -33,6 +33,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-6 p-6">
+      <div className="text-2xl font-bold">Edit Profile</div>
       <form action={updateProfileAction}>
         <FieldGroup>
           <Field>
@@ -60,7 +61,7 @@ export default async function ProfilePage() {
                 id="instagramHandle"
                 name="instagramHandle"
                 defaultValue={user.instagramHandle ?? ""}
-                placeholder="@yourhandle"
+                placeholder="yourhandle"
               />
               <InputGroupAddon>
                 <Instagram />

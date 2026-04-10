@@ -3,14 +3,7 @@ import Link from "next/link"
 import { getCurrentUserId } from "@/lib/auth"
 import { visitRepository } from "@/lib/repositories/visit-repository"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card"
+
 import {
   Item,
   ItemContent,
@@ -33,9 +26,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import Image from "next/image"
 import { MapPin, MoreVertical, Omega, Section } from "lucide-react"
-import { getUrl } from "@/lib/storage"
 import { UserAvatar } from "@/components/user-avatar"
 
 export default async function VisitDetailPage({
@@ -207,9 +198,13 @@ const VisitHeader = ({
 }) => (
   <div className="flex justify-between gap-2">
     <div>
-      <div className="text-2xl font-bold">
+      <Link
+        href={`/location/${visit.location.id}`}
+        className="text-2xl font-bold hover:underline"
+      >
         {visit.displayName ?? visit.location.city}
-      </div>
+      </Link>
+
       <div className="text-sm text-muted-foreground">
         {formatDateRange(visit.arriveAt, visit.departAt)}
       </div>

@@ -33,10 +33,15 @@ export const ProfileHeader = async ({ userId }: { userId: number }) => {
 
       <div className="text-2xl font-bold">{user.name}</div>
       <div className="flex items-center gap-0.5">
-        <span className="flex items-center gap-1">
-          <House className="size-4" /> {user.homeCity}
-        </span>
-        <Dot />
+        {user.homeCity && (
+          <>
+            <span className="flex items-center gap-1">
+              <House className="size-4" /> {user.homeCity}
+            </span>
+            <Dot />
+          </>
+        )}
+
         <span>
           Joined{" "}
           {user?.createdAt.toLocaleDateString("us-en", {

@@ -64,7 +64,7 @@ export function ActivityForm({
       <DrawerTrigger asChild>
         <Button variant="outline" className="w-full">
           <Plus className="mr-2 h-4 w-4" />
-          Add Activity
+          Add
         </Button>
       </DrawerTrigger>
       <DrawerContent>
@@ -97,7 +97,7 @@ export function ActivityForm({
             </FieldSet>
             <DrawerFooter>
               <Button type="submit" disabled={isPending}>
-                {isPending ? "Adding..." : "Add Activity"}
+                {isPending ? "Adding..." : "Add"}
               </Button>
               <DrawerClose asChild>
                 <Button variant="outline" type="button">

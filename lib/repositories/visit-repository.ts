@@ -1,6 +1,10 @@
 import prisma from "@/lib/prisma"
 
 export const visitRepository = {
+  async findLocationById(locationId: number) {
+    return prisma.location.findUnique({ where: { id: locationId } })
+  },
+
   /**
    * Get all visits of a user, including the location and other visitors to that location (excluding the current user)
    */
@@ -186,6 +190,40 @@ export const visitRepository = {
     if (!activity) return
     await prisma.visitActivity.deleteMany({
       where: { visitId, activityId: activity.id },
+    })
+  },
+
+  async findUpcomingByCity(city: string, excludeUserId?: number) {
+    const today = new Date()
+    return prisma.visit.findMany({
+      where: {
+        location: { city },
+        departAt: { gte: today },
+        ...(excludeUserId ? { userId: { not: excludeUserId } } : {}),
+      },
+      include: {
+        user: true,
+        location: true,
+        activities: { include: { activity: true } },
+      },
+      orderBy: { arriveAt: "asc" },
+    })
+  },
+
+  async findUpcomingByLocationId(locationId: number, excludeUserId?: number) {
+    const today = new Date()
+    return prisma.visit.findMany({
+      where: {
+        locationId,
+        departAt: { gte: today },
+        ...(excludeUserId ? { userId: { not: excludeUserId } } : {}),
+      },
+      include: {
+        user: true,
+        location: true,
+        activities: { include: { activity: true } },
+      },
+      orderBy: { arriveAt: "asc" },
     })
   },
 

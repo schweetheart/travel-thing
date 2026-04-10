@@ -10,3 +10,8 @@ export const getCurrentUserId = cache(async () => {
   const parsed = parseInt(value, 10)
   return isNaN(parsed) ? null : parsed
 })
+
+export const logout = async () => {
+  const cookieStore = await cookies()
+  cookieStore.delete("userId")
+}
