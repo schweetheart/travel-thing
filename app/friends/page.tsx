@@ -4,7 +4,7 @@ import { getUrl } from "@/lib/storage"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { Users } from "lucide-react"
+import { MapPin, Plane, Users } from "lucide-react"
 import {
   Item,
   ItemContent,
@@ -72,9 +72,15 @@ export default async function FriendsPage() {
                   )}
                 </ItemMedia>
                 <ItemContent>
-                  <ItemTitle>{user.name ?? `User ${user.id}`}</ItemTitle>
+                  <ItemTitle className="flex items-center gap-1">
+                    {user.name ?? `User ${user.id}`}
+                  </ItemTitle>
                   {user.homeCity && (
-                    <ItemDescription>{user.homeCity}</ItemDescription>
+                    <ItemDescription>
+                      <span className="flex items-center gap-1">
+                        <MapPin className="size-4" /> {user.homeCity}
+                      </span>
+                    </ItemDescription>
                   )}
                 </ItemContent>
               </Link>

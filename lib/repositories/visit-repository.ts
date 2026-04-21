@@ -1,8 +1,74 @@
 import prisma from "@/lib/prisma"
+import type { Prisma } from "@/generated/prisma/client"
 
 export const visitRepository = {
   async findLocationById(locationId: number) {
     return prisma.location.findUnique({ where: { id: locationId } })
+  },
+
+  async findAllLocations() {
+    return prisma.location.findMany({ orderBy: { city: "asc" } })
+  },
+
+  async findFeed(
+    viewerUserId: number,
+    filters?: {
+      city?: string
+      friendId?: number
+      arriveAfter?: Date
+      departBefore?: Date
+    }
+  ) {
+    const where: Prisma.VisitWhereInput = {
+      userId: { not: viewerUserId },
+      ...(filters?.friendId ? { userId: filters.friendId } : {}),
+      ...(filters?.city ? { location: { city: filters.city } } : {}),
+      ...(filters?.arriveAfter
+        ? { arriveAt: { gte: filters.arriveAfter } }
+        : {}),
+      ...(filters?.departBefore
+        ? { departAt: { lte: filters.departBefore } }
+        : {}),
+    }
+
+    const visits = await prisma.visit.findMany({
+      include: {
+        activities: { include: { activity: true } },
+        user: true,
+        location: {
+          include: {
+            visits: {
+              include: { user: true },
+            },
+          },
+        },
+      },
+      where,
+      orderBy: { departAt: "asc" },
+    })
+
+    return visits.map((visit) => {
+      const overlapping = visit.location.visits.filter(
+        (v) =>
+          v.id !== visit.id &&
+          v.arriveAt < visit.departAt &&
+          v.departAt > visit.arriveAt
+      )
+      const viewerOverlaps = overlapping.some((v) => v.userId === viewerUserId)
+      return {
+        ...visit,
+        viewerOverlaps,
+        location: {
+          ...visit.location,
+          visits: overlapping
+            .filter((v) => v.userId !== viewerUserId)
+            .slice(0, 3),
+          _count: {
+            visits: overlapping.filter((v) => v.userId !== viewerUserId).length,
+          },
+        },
+      }
+    })
   },
 
   /**

@@ -84,3 +84,14 @@ To Do
 
 
     View by, date, when or Where
+
+Future: Suggest events / travel plans based off your network
+
+
+
+// Fave Inspiration
+- Airbnb
+- Discord (dark theme)
+- Flighty
+- Partiful
+

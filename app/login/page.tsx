@@ -20,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
 
 export default async function LoginPage() {
   const users = await userRepository.findAll()
@@ -67,69 +68,54 @@ export default async function LoginPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Users</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {users.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No users yet. Set a user ID above to create one.
-            </p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-20">ID</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Home City</TableHead>
-                  <TableHead className="w-24" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id} className="group">
-                    <TableCell className="font-mono">{user.id}</TableCell>
-                    <TableCell>{user.name || "—"}</TableCell>
-                    <TableCell>{user.homeCity || "—"}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        {user.id === currentUserId ? (
-                          <Badge className="border border-solid border-green-100 bg-green-100 text-green-600">
-                            Active
-                          </Badge>
-                        ) : (
-                          <form action={setUserAction}>
-                            <input
-                              type="hidden"
-                              name="userId"
-                              value={user.id}
-                            />
-                            <Button variant="link" size="sm" type="submit">
-                              Switch
-                            </Button>
-                          </form>
-                        )}
-                        <form action={deleteUserAction}>
-                          <input type="hidden" name="userId" value={user.id} />
-                          <Button
-                            variant="link"
-                            size="sm"
-                            type="submit"
-                            className="text-destructive hover:text-destructive"
-                          >
-                            Delete
-                          </Button>
-                        </form>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-20">ID</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Home City</TableHead>
+            <TableHead className="w-24" />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {users.map((user) => (
+            <TableRow key={user.id} className="group">
+              <TableCell className="font-mono">
+                <Link href={`/${user.id}`}>{user.id}</Link>
+              </TableCell>
+              <TableCell>{user.name || "—"}</TableCell>
+              <TableCell>{user.homeCity || "—"}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-1">
+                  {user.id === currentUserId ? (
+                    <Badge className="border border-solid border-green-100 bg-green-100 text-green-600">
+                      Active
+                    </Badge>
+                  ) : (
+                    <form action={setUserAction}>
+                      <input type="hidden" name="userId" value={user.id} />
+                      <Button variant="link" size="sm" type="submit">
+                        Switch
+                      </Button>
+                    </form>
+                  )}
+                  <form action={deleteUserAction}>
+                    <input type="hidden" name="userId" value={user.id} />
+                    <Button
+                      variant="link"
+                      size="sm"
+                      type="submit"
+                      className="text-destructive hover:text-destructive"
+                    >
+                      Delete
+                    </Button>
+                  </form>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   )
 }

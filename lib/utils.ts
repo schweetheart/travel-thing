@@ -20,7 +20,7 @@ export function formatDateRange(start: Date, end: Date) {
   if (sameMonth) {
     const startDay = start.toLocaleDateString("en-US", { weekday: "short" })
     const month = start.toLocaleDateString("en-US", { month: "short" })
-    return `${startDay}, ${month} ${start.getDate()} - ${end.getDate()}`
+    return `${month} ${start.getDate()} - ${end.getDate()}`
   }
 
   return `${formatDate(start)} - ${formatDate(end)}`

@@ -3,6 +3,7 @@ import { Inter, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
+import { Metadata, Viewport } from "next"
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -13,6 +14,16 @@ const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 })
+
+export const viewport: Viewport = {
+  themeColor: "black",
+}
+export const metadata: Metadata = {
+  title: {
+    default: "Friend Map",
+    template: `%s | Friend Map`,
+  },
+}
 
 export default function RootLayout({
   children,
@@ -31,7 +42,9 @@ export default function RootLayout({
       )}
     >
       <body className="touch-pan-y">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <div className="mx-auto max-w-2xl">{children}</div>
+        </ThemeProvider>
       </body>
     </html>
   )

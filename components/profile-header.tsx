@@ -24,11 +24,13 @@ export const ProfileHeader = async ({ userId }: { userId: number }) => {
     <div className="flex flex-col items-center gap-4">
       <div className="relative">
         <Avatar className="size-40">
-          <AvatarContent user={user} size={200} />
+          <AvatarContent user={user} size={160} />
         </Avatar>
-        <div className="absolute right-0 bottom-0">
-          <FileUpload />
-        </div>
+        {isOwnProfile && (
+          <div className="absolute right-0 bottom-0">
+            <FileUpload />
+          </div>
+        )}
       </div>
 
       <div className="text-2xl font-bold">{user.name}</div>
@@ -44,10 +46,9 @@ export const ProfileHeader = async ({ userId }: { userId: number }) => {
 
         <span>
           Joined{" "}
-          {user?.createdAt.toLocaleDateString("us-en", {
-            month: "short",
-            year: "2-digit",
-          })}
+          {user?.createdAt.toLocaleDateString("en-US", { month: "short" })}{" "}
+          &apos;
+          {user?.createdAt.toLocaleDateString("en-US", { year: "2-digit" })}
         </span>
       </div>
 
@@ -81,12 +82,6 @@ export const ProfileHeader = async ({ userId }: { userId: number }) => {
 
           <ShareButton />
         </div>
-      )}
-
-      {currentUserId === null && (
-        <Button variant={"outline"} asChild>
-          <Link href="/login">Log in to see more</Link>
-        </Button>
       )}
     </div>
   )

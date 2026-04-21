@@ -5,9 +5,8 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 import { Button } from "@/components/ui/button"
-import { getCurrentUserId } from "@/lib/auth"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Plus, MapPin, Users } from "lucide-react"
+import { MapPin } from "lucide-react"
 import Link from "next/link"
 import {
   Empty,
@@ -17,6 +16,7 @@ import {
   EmptyDescription,
 } from "@/components/ui/empty"
 import { Separator } from "@/components/ui/separator"
+import { userRepository } from "@/lib/repositories/user-repository"
 
 type ProfilePageProps = PageProps<"/[id]">
 
@@ -25,55 +25,38 @@ export async function generateMetadata({
 }: ProfilePageProps): Promise<Metadata> {
   const { id } = await params
 
+  const user = await userRepository.findById(parseInt(id, 10))
+
   return {
-    title: `Profile - ${id}`,
-    description: "User profile page",
+    title: `${user?.name}`,
   }
 }
 
-export default async function ProfilePage({
-  params,
-  searchParams,
-}: ProfilePageProps) {
+export default async function ProfilePage({ params }: ProfilePageProps) {
   const { id } = await params
 
   if (isNaN(parseInt(id, 10))) notFound()
 
-  const currentUserId = await getCurrentUserId()
-  if (!currentUserId) notFound()
-
   const profileUserId = parseInt(id, 10)
-
-  const trips = await visitRepository.findByUser(profileUserId, {
-    upcomingOnly: true,
-    viewerUserId: currentUserId,
-  })
-
-  const now = new Date()
-  const currentTrip = trips.find((t) => t.arriveAt <= now && t.departAt >= now)
 
   return (
     <div>
-      <div className="p-8">
+      <div
+        className="p-12"
+        style={{
+          background: `radial-gradient(50% 50%, rgba(158, 110, 230, 0.28) 0%, rgba(158, 110, 230, 0) 100%)`,
+        }}
+      >
         <Suspense fallback={<LoadingSkeleton />}>
           <ProfileHeader userId={profileUserId} />
         </Suspense>
       </div>
       <Separator />
-      {currentTrip && (
-        <div className="mx-auto max-w-3xl rounded-lg bg-amber-300 p-6">
-          <Trips trips={[currentTrip]} />
-        </div>
-      )}
 
-      <div className="mt-6 px-3">
-        {trips.length === 0 ? (
-          <EmptyTravel />
-        ) : (
-          <Suspense fallback={<LoadingSkeleton />}>
-            <Trips trips={trips} />
-          </Suspense>
-        )}
+      <div className="mt-6 px-2">
+        <Suspense fallback={<TripListPlaceholder />}>
+          <ProfileTrips userId={profileUserId} />
+        </Suspense>
       </div>
     </div>
   )
@@ -98,10 +81,36 @@ const EmptyTravel = () => (
 )
 
 const LoadingSkeleton = () => (
-  <div className="space-y-4">
-    <Skeleton className="h-6 w-1/3 rounded" />
-    <Skeleton className="h-4 w-full rounded" />
-    <Skeleton className="h-4 w-full rounded" />
-    <Skeleton className="h-4 w-full rounded" />
+  <div className="flex flex-col items-center gap-4">
+    <Skeleton className="size-40 rounded-full" />
+    <Skeleton className="h-7 w-40 rounded" />
+    <Skeleton className="h-4 w-48 rounded" />
+    <Skeleton className="h-9 w-36 rounded-md" />
+  </div>
+)
+
+const ProfileTrips = async ({ userId }: { userId: number }) => {
+  const trips = await visitRepository.findByUser(userId, {
+    upcomingOnly: true,
+  })
+
+  if (trips.length === 0) {
+    return <EmptyTravel />
+  }
+
+  return <Trips trips={trips} />
+}
+
+const TripListPlaceholder = () => (
+  <div className="m-4 flex flex-col gap-4">
+    {[1, 2, 3].map((i) => (
+      <div key={i} className="flex items-center gap-4">
+        <Skeleton className="size-12 rounded" />
+        <div className="flex-1">
+          <Skeleton className="h-4 w-full rounded" />
+          <Skeleton className="mt-1 h-3 w-3/4 rounded" />
+        </div>
+      </div>
+    ))}
   </div>
 )

@@ -9,12 +9,8 @@ import {
   ItemMedia,
   ItemDescription,
 } from "./ui/item"
-import { AvatarGroup, AvatarGroupCount } from "./ui/avatar"
-import { formatDateRange, getFirstName } from "@/lib/utils"
+import { formatDateRange } from "@/lib/utils"
 import { Badge } from "./ui/badge"
-import { getUrl } from "@/lib/storage"
-import { getImageProps } from "next/image"
-import { UserAvatar } from "./user-avatar"
 
 function Dot() {
   return <span className="text-muted-foreground">·</span>
@@ -22,7 +18,7 @@ function Dot() {
 
 type Trips = Awaited<ReturnType<typeof visitRepository.findByUser>>
 
-export const Trips = async ({ trips }: { trips: Trips }) => {
+export const Trips = ({ trips }: { trips: Trips }) => {
   const visits = trips
   return (
     <>
@@ -47,22 +43,19 @@ export const Trips = async ({ trips }: { trips: Trips }) => {
             const isOngoing = today >= arrive && today <= depart
 
             return (
-              <Item key={visit.id} asChild>
+              <Item key={visit.id} asChild className="flex-nowrap">
                 <Link href={`/visit/${visit.id}`}>
-                  <ItemMedia
-                    variant={"default"}
-                    className="size-14 flex-col rounded-xl bg-accent text-center leading-none"
-                  >
+                  <ItemMedia className="size-16 flex-col gap-0 rounded-xl bg-accent text-center leading-none">
                     {isOngoing ? (
                       <span className="text-xs font-medium text-muted-foreground">
                         now
                       </span>
                     ) : daysUntil > 0 ? (
                       <>
-                        <span className="text-xl font-bold tabular-nums">
+                        <span className="text-lg font-bold tabular-nums">
                           {daysUntil}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-sm text-muted-foreground">
                           days
                         </span>
                       </>
@@ -72,36 +65,53 @@ export const Trips = async ({ trips }: { trips: Trips }) => {
                       </span>
                     )}
                   </ItemMedia>
-                  <ItemContent>
-                    <div className="flex items-center justify-between">
+
+                  <ItemContent className="overflow-hidden">
+                    <div className="flex justify-between gap-2">
                       <div>
-                        <div className="flex items-center gap-2">
-                          <ItemTitle>
-                            {visit.displayName ?? visit.location.city}
-                          </ItemTitle>
+                        <ItemTitle className="line-clamp-1">
+                          {visit.displayName ?? visit.location.city}
+                        </ItemTitle>
+                        {visit.viewerOverlaps && (
+                          <Badge variant="secondary" className="text-xs">
+                            You&apos;re there too
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="shrink-0 text-muted-foreground">
+                        {formatDateRange(visit.arriveAt, visit.departAt)}
+                      </div>
+                    </div>
 
-                          {visit.viewerOverlaps && (
-                            <Badge variant="secondary" className="text-xs">
-                              You&apos;re there too
-                            </Badge>
-                          )}
-                        </div>
-
-                        <ItemDescription>
-                          <span className="flex items-center gap-1.5">
-                            {activities.map((name, i) => (
-                              <span
-                                key={name}
-                                className="flex shrink-0 items-center gap-1.5"
-                              >
-                                {i > 0 && <Dot />}
-                                {name}
-                              </span>
-                            ))}
-                          </span>
+                    <div>
+                      {/*       <ItemDescription className="w-2xs">
+                        <span className="flex items-center gap-1">
+                          {activities.map((name, i) => (
+                            <span
+                              key={name}
+                              className="flex shrink-0 items-center gap-1"
+                            >
+                              {i > 0 && <Dot />}
+                              {name}
+                            </span>
+                          ))}
+                        </span>
+                      </ItemDescription> */}
+                      {activities.length > 0 && (
+                        <ItemDescription className="flex gap-1">
+                          {activities.map((name, i) => (
+                            <span
+                              key={name}
+                              className="flex shrink-0 items-center gap-1"
+                            >
+                              {i > 0 && <Dot />}
+                              {name}
+                            </span>
+                          ))}
                         </ItemDescription>
+                      )}
 
-                        {visit.location.visits.length > 0 && (
+                      {/*  {visit.location.visits.length > 0 && (
                           <div className="mt-1 flex items-center gap-2">
                             <AvatarGroup>
                               {visit.location.visits.map((v) => {
@@ -121,17 +131,7 @@ export const Trips = async ({ trips }: { trips: Trips }) => {
                                 ` +${visit.location._count.visits - 3} more`}
                             </span>
                           </div>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col items-end gap-0.5">
-                        <span className="text-muted-foreground">
-                          {formatDateRange(visit.arriveAt, visit.departAt)}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {visit.location.city}
-                        </span>
-                      </div>
+                        )} */}
                     </div>
                   </ItemContent>
                 </Link>
@@ -143,3 +143,13 @@ export const Trips = async ({ trips }: { trips: Trips }) => {
     </>
   )
 }
+
+const Notification = ({ children }: { children: React.ReactNode }) => (
+  <div className="inline- relative">
+    {children}
+    <div className="absolute top-0 right-0 flex size-3">
+      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-purple-400 opacity-75"></span>
+      <span className="relative inline-flex size-3 rounded-full bg-purple-500"></span>
+    </div>
+  </div>
+)

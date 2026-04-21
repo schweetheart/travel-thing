@@ -12,13 +12,11 @@ export const UserAvatar = async () => {
   const user = await userRepository.findById(userId)
   if (!user) return null
   return (
-    <Link href={`/${userId}/edit`}>
-      <Avatar>
-        <AvatarContent user={user} />
-        <AvatarBadge className="bg-muted text-accent-foreground">
-          <ChevronDown />
-        </AvatarBadge>
-      </Avatar>
-    </Link>
+    <Avatar>
+      <AvatarContent user={user} />
+      <AvatarBadge className="bg-muted text-accent-foreground">
+        <ChevronDown />
+      </AvatarBadge>
+    </Avatar>
   )
 }

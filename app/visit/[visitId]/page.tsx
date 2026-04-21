@@ -26,7 +26,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { MapPin, MoreVertical, Omega, Section } from "lucide-react"
+import { ChevronLeft, MapPin, MoreVertical, Omega, Section } from "lucide-react"
 import { UserAvatar } from "@/components/user-avatar"
 
 export default async function VisitDetailPage({
@@ -35,7 +35,6 @@ export default async function VisitDetailPage({
   params: Promise<{ visitId: string }>
 }) {
   const userId = await getCurrentUserId()
-  if (!userId) redirect("/login")
 
   const { visitId } = await params
   const id = parseInt(visitId, 10)
@@ -75,8 +74,8 @@ export default async function VisitDetailPage({
   const showEditButtons = visit.userId === userId
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6 p-6">
-      <Item asChild className="group">
+    <div className="mx-auto flex max-w-3xl flex-col gap-6">
+      {/*       <Item asChild className="group">
         <Link href={`/${visit.user.id}`}>
           <ItemMedia variant="image">
             <UserAvatar user={visit.user} />
@@ -90,11 +89,20 @@ export default async function VisitDetailPage({
             </ItemDescription>
           </ItemContent>
         </Link>
-      </Item>
-      <VisitHeader visit={visit} showEditButtons={showEditButtons} />
-      <OverlappingTrips tripId={visit.id} />
+      </Item> */}
+      <div className="flex items-center gap-2 border-b p-4">
+        <Button variant="ghost" size="icon">
+          <Link href={`/${visit.user.id}`}>
+            <ChevronLeft />
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <VisitHeader visit={visit} showEditButtons={showEditButtons} />
+        </div>
+      </div>
+      {/*      <OverlappingTrips tripId={visit.id} /> */}
 
-      <div>
+      <div className="p-6">
         <SectionTitle>Plans</SectionTitle>
 
         <ActivityList
@@ -104,7 +112,7 @@ export default async function VisitDetailPage({
           canEdit={showEditButtons}
         />
       </div>
-      {showEditButtons && friendActivities.length > 0 && (
+      {/*       {showEditButtons && friendActivities.length > 0 && (
         <div>
           <SectionTitle>Suggested</SectionTitle>
           <div className="text-sm text-muted-foreground">
@@ -125,7 +133,7 @@ export default async function VisitDetailPage({
             ))}
           </ItemGroup>
         </div>
-      )}
+      )} */}
     </div>
   )
 }
@@ -200,7 +208,7 @@ const VisitHeader = ({
     <div>
       <Link
         href={`/location/${visit.location.id}`}
-        className="text-2xl font-bold hover:underline"
+        className="text-xl font-bold hover:underline"
       >
         {visit.displayName ?? visit.location.city}
       </Link>

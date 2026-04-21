@@ -14,7 +14,7 @@ export const UserAvatar = async ({ user }: { user: User }) => {
 
 export const AvatarContent = ({
   user,
-  size,
+  size = 40,
 }: {
   user: User
   size?: number
@@ -25,7 +25,7 @@ export const AvatarContent = ({
       style: { objectFit: "cover" },
       alt: user.name ?? "User Avatar",
       src: getUrl(user.profileImageKey),
-      sizes: size ? `${size}px` : "40px",
+      sizes: `${size}px`,
     })
     return <AvatarImage {...props} />
   }
