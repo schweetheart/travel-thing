@@ -1,5 +1,7 @@
 import prisma from "@/lib/prisma"
-import { Prisma } from "@/generated/prisma/client"
+import { Prisma } from "@prisma/client"
+
+export type { User } from "@prisma/client"
 
 export const userRepository = {
   async findAll() {

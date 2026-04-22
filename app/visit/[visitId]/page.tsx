@@ -206,12 +206,9 @@ const VisitHeader = ({
 }) => (
   <div className="flex justify-between gap-2">
     <div>
-      <Link
-        href={`/location/${visit.location.id}`}
-        className="text-xl font-bold hover:underline"
-      >
+      <span className="text-xl font-bold hover:underline">
         {visit.displayName ?? visit.location.city}
-      </Link>
+      </span>
 
       <div className="text-sm text-muted-foreground">
         {formatDateRange(visit.arriveAt, visit.departAt)}
