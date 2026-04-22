@@ -23,8 +23,9 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 
 export default async function LoginPage() {
-  const users = await userRepository.findAll()
   const currentUserId = await getCurrentUserId()
+
+  const users = await userRepository.findAll()
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6 p-6">

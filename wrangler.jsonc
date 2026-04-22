@@ -4,6 +4,7 @@
   "name": "friend-map",
   "compatibility_date": "2026-04-05",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "preview_urls": false,
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",
@@ -38,4 +39,10 @@
     "binding": "IMAGES",
     "remote": true,
   },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "b550031c00b8407ebec391b1023bcdff",
+    },
+  ],
 }

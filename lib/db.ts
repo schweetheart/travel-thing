@@ -1,13 +1,13 @@
+import { getCloudflareContext } from "@opennextjs/cloudflare"
+
 import { cache } from "react"
 import { PrismaClient } from "@prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
 
 export const getDb = cache(() => {
-  const connectionString = process.env.DATABASE_URL ?? ""
-  const adapter = new PrismaPg({ connectionString, maxUses: 1 })
-  const prisma = new PrismaClient({ adapter })
-  return prisma
-})
+  const { env } = getCloudflareContext()
+  const connectionString = env.HYPERDRIVE.connectionString
 
-const prisma = getDb()
-export default prisma
+  const adapter = new PrismaPg({ connectionString, maxUses: 1 })
+  return new PrismaClient({ adapter })
+})

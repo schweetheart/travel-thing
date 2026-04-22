@@ -1,19 +1,19 @@
-import prisma from "@/lib/prisma"
+import { getDb } from "@/lib/db"
 import { Prisma } from "@prisma/client"
 
 export type { User } from "@prisma/client"
 
 export const userRepository = {
   async findAll() {
-    return prisma.user.findMany({ orderBy: { id: "asc" } })
+    return getDb().user.findMany({ orderBy: { id: "asc" } })
   },
 
   async findById(id: number) {
-    return prisma.user.findUnique({ where: { id } })
+    return getDb().user.findUnique({ where: { id } })
   },
 
   async upsert(id: number) {
-    return prisma.user.upsert({
+    return getDb().user.upsert({
       where: { id },
       create: { id },
       update: {},
@@ -21,13 +21,13 @@ export const userRepository = {
   },
 
   async update(id: number, data: Prisma.UserUpdateInput) {
-    return prisma.user.update({
+    return getDb().user.update({
       where: { id },
       data,
     })
   },
 
   async delete(id: number) {
-    return prisma.user.delete({ where: { id } })
+    return getDb().user.delete({ where: { id } })
   },
 }

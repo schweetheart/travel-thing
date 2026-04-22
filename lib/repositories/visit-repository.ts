@@ -1,13 +1,13 @@
-import prisma from "@/lib/prisma"
+import { getDb } from "@/lib/db"
 import type { Prisma } from "@prisma/client"
 
 export const visitRepository = {
   async findLocationById(locationId: number) {
-    return prisma.location.findUnique({ where: { id: locationId } })
+    return getDb().location.findUnique({ where: { id: locationId } })
   },
 
   async findAllLocations() {
-    return prisma.location.findMany({ orderBy: { city: "asc" } })
+    return getDb().location.findMany({ orderBy: { city: "asc" } })
   },
 
   async findFeed(
@@ -31,7 +31,7 @@ export const visitRepository = {
         : {}),
     }
 
-    const visits = await prisma.visit.findMany({
+    const visits = await getDb().visit.findMany({
       include: {
         activities: { include: { activity: true } },
         user: true,
@@ -85,7 +85,7 @@ export const visitRepository = {
   ) {
     const today = new Date()
 
-    const visits = await prisma.visit.findMany({
+    const visits = await getDb().visit.findMany({
       include: {
         activities: { include: { activity: true } },
         location: {
@@ -131,7 +131,7 @@ export const visitRepository = {
 
   async overlappingVisits(id: number) {
     // Get the current visit to find the location and dates
-    const visit = await prisma.visit.findUnique({
+    const visit = await getDb().visit.findUnique({
       where: { id },
       include: { location: true },
     })
@@ -141,7 +141,7 @@ export const visitRepository = {
     // We actually just want to see the individuals
 
     // Consider in the future showing the overlaping dates in the UI
-    return await prisma.visit.findMany({
+    return await getDb().visit.findMany({
       where: {
         locationId: visit.locationId,
         id: { not: id },
@@ -163,7 +163,7 @@ export const visitRepository = {
     displayName?: string | null
     activityNames?: string[]
   }) {
-    return prisma.visit.create({
+    return getDb().visit.create({
       data: {
         arriveAt: data.arriveAt,
         departAt: data.departAt,
@@ -202,7 +202,7 @@ export const visitRepository = {
       activityNames?: string[]
     }
   ) {
-    return prisma.$transaction(async (tx) => {
+    return getDb().$transaction(async (tx) => {
       if (data.activityNames !== undefined) {
         await tx.visitActivity.deleteMany({ where: { visitId: id } })
         if (data.activityNames.length > 0) {
@@ -230,38 +230,38 @@ export const visitRepository = {
   },
 
   async delete(id: number) {
-    return prisma.visit.delete({ where: { id } })
+    return getDb().visit.delete({ where: { id } })
   },
 
   async addActivity(visitId: number, activityName: string, url?: string) {
-    const activity = await prisma.activity.upsert({
+    const activity = await getDb().activity.upsert({
       where: { name: activityName },
       create: { name: activityName, url: url || null },
       update: url ? { url } : {},
     })
     // No-op if already linked
-    const existing = await prisma.visitActivity.findFirst({
+    const existing = await getDb().visitActivity.findFirst({
       where: { visitId, activityId: activity.id },
     })
     if (existing) return existing
-    return prisma.visitActivity.create({
+    return getDb().visitActivity.create({
       data: { visitId, activityId: activity.id },
     })
   },
 
   async removeActivity(visitId: number, activityName: string) {
-    const activity = await prisma.activity.findUnique({
+    const activity = await getDb().activity.findUnique({
       where: { name: activityName },
     })
     if (!activity) return
-    await prisma.visitActivity.deleteMany({
+    await getDb().visitActivity.deleteMany({
       where: { visitId, activityId: activity.id },
     })
   },
 
   async findUpcomingByCity(city: string, excludeUserId?: number) {
     const today = new Date()
-    return prisma.visit.findMany({
+    return getDb().visit.findMany({
       where: {
         location: { city },
         departAt: { gte: today },
@@ -278,7 +278,7 @@ export const visitRepository = {
 
   async findUpcomingByLocationId(locationId: number, excludeUserId?: number) {
     const today = new Date()
-    return prisma.visit.findMany({
+    return getDb().visit.findMany({
       where: {
         locationId,
         departAt: { gte: today },
@@ -294,7 +294,7 @@ export const visitRepository = {
   },
 
   async findById(id: number) {
-    return prisma.visit.findUnique({
+    return getDb().visit.findUnique({
       where: { id },
       include: {
         user: true,
@@ -307,7 +307,7 @@ export const visitRepository = {
   async findVisitorsByCity(city: string, excludeUserId: number) {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    return prisma.visit.findMany({
+    return getDb().visit.findMany({
       where: {
         location: { city: { equals: city, mode: "insensitive" } },
         userId: { not: excludeUserId },

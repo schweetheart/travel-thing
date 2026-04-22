@@ -1,4 +1,7 @@
 /** @type {import('next').NextConfig} */
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare"
+initOpenNextCloudflareForDev()
+
 const nextConfig = {
   typedRoutes: true,
   serverExternalPackages: [
@@ -20,5 +23,3 @@ const nextConfig = {
 }
 
 export default nextConfig
-
-import("@opennextjs/cloudflare").then((m) => m.initOpenNextCloudflareForDev())
