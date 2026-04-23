@@ -5,11 +5,17 @@ export type { User } from "@prisma/client"
 
 export const userRepository = {
   async findAll() {
-    return getDb().user.findMany({ orderBy: { id: "asc" } })
+    return getDb().user.findMany({
+      orderBy: { id: "asc" },
+      include: { location: true },
+    })
   },
 
   async findById(id: number) {
-    return getDb().user.findUnique({ where: { id } })
+    return getDb().user.findUnique({
+      where: { id },
+      include: { location: true },
+    })
   },
 
   async upsert(id: number) {

@@ -85,7 +85,7 @@ export default async function LoginPage() {
                 <Link href={`/${user.id}`}>{user.id}</Link>
               </TableCell>
               <TableCell>{user.name || "—"}</TableCell>
-              <TableCell>{user.homeCity || "—"}</TableCell>
+              <TableCell>{user.location?.city || "—"}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
                   {user.id === currentUserId ? (

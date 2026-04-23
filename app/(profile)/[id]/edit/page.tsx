@@ -14,7 +14,6 @@ import {
   CardDescription,
 } from "@/components/ui/card"
 import { ChevronLeft, Instagram } from "lucide-react"
-import { Route } from "next"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import {
   InputGroup,
@@ -50,7 +49,7 @@ export default async function ProfilePage() {
             <Input
               id="homeCity"
               name="homeCity"
-              defaultValue={user.homeCity ?? ""}
+              defaultValue={user.location?.city ?? ""}
               placeholder="e.g. Seattle"
             />
           </Field>

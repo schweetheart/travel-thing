@@ -14,8 +14,9 @@ model User {
   profileImageKey String?
   name            String?
   createdAt       DateTime @default(now())
-  homeCity        String?
+  locationId      Int?
   instagramHandle String?
+  location        Location?   @relation(fields: [locationId], references: [id])
   visits          Visit[]
 }
 
@@ -54,5 +55,6 @@ model VisitActivity {
 model Location {
   id     Int     @id @default(autoincrement())
   city   String  @unique
+  users  User[]
   visits Visit[]
 }

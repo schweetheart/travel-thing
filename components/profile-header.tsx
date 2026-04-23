@@ -35,10 +35,10 @@ export const ProfileHeader = async ({ userId }: { userId: number }) => {
 
       <div className="text-2xl font-bold">{user.name}</div>
       <div className="flex items-center gap-0.5">
-        {user.homeCity && (
+        {user.location?.city && (
           <>
             <span className="flex items-center gap-1">
-              <House className="size-4" /> {user.homeCity}
+              <House className="size-4" /> {user.location.city}
             </span>
             <Dot />
           </>

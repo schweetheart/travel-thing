@@ -127,7 +127,7 @@ export const visitRepository = {
     })
   },
 
-  // getUsersBy visit
+  // Get all users who have a visit that overlaps with the given visit ID
 
   async overlappingVisits(id: number) {
     // Get the current visit to find the location and dates
@@ -137,22 +137,29 @@ export const visitRepository = {
     })
     if (!visit) return []
 
-    // Find other visits overlapping
-    // We actually just want to see the individuals
-
-    // Consider in the future showing the overlaping dates in the UI
-    return await getDb().visit.findMany({
-      where: {
-        locationId: visit.locationId,
-        id: { not: id },
-        AND: [
-          { arriveAt: { lt: visit.departAt } },
-          { departAt: { gt: visit.arriveAt } },
-        ],
-      },
-      include: { user: true, activities: { include: { activity: true } } },
-      orderBy: { arriveAt: "asc" },
+    // Find all users who have this location as their home city
+    const homeCityUsers = await getDb().user.findMany({
+      where: { locationId: visit.locationId },
     })
+
+    // Find all users who have a visit that overlaps with the current visit
+    const visitingUsers = await getDb().user.findMany({
+      where: {
+        NOT: { id: visit.userId },
+        visits: {
+          some: {
+            locationId: visit.locationId,
+            id: { not: visit.userId },
+            AND: [
+              { arriveAt: { lt: visit.departAt } },
+              { departAt: { gt: visit.arriveAt } },
+            ],
+          },
+        },
+      },
+    })
+
+    return [...homeCityUsers, ...visitingUsers]
   },
 
   async create(data: {

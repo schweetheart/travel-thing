@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation"
+import { notFound } from "next/navigation"
 import Link from "next/link"
 import { getCurrentUserId } from "@/lib/auth"
 import { visitRepository } from "@/lib/repositories/visit-repository"
@@ -21,36 +21,32 @@ import { Route } from "next"
 import {
   Drawer,
   DrawerContent,
-  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { ChevronLeft, MapPin, MoreVertical, Omega, Section } from "lucide-react"
+import { ChevronLeft, MoreVertical } from "lucide-react"
 import { UserAvatar } from "@/components/user-avatar"
+import { OverlappingFriends } from "./overlapping-friends"
 
-export default async function VisitDetailPage({
-  params,
-}: {
-  params: Promise<{ visitId: string }>
-}) {
+export default async function VisitDetailPage(
+  props: PageProps<"/visit/[visitId]">
+) {
   const userId = await getCurrentUserId()
 
-  const { visitId } = await params
+  const { visitId } = await props.params
   const id = parseInt(visitId, 10)
   if (isNaN(id)) notFound()
 
   const visit = await visitRepository.findById(id)
   if (!visit) notFound()
 
-  const friendsOverlapping = await visitRepository.overlappingVisits(visit.id)
-
   const activities = visit.activities.map((a) => ({
     name: a.activity.name,
     url: a.activity.url,
   }))
 
-  // Map activity name → list of friend names doing that activity
+  /*   // Map activity name → list of friend names doing that activity
   const activityFriendMap: Record<string, string[]> = {}
   for (const ov of friendsOverlapping) {
     const name = ov.user.name || `User #${ov.user.id}`
@@ -69,7 +65,7 @@ export default async function VisitDetailPage({
         ov.activities.map((a) => a.activity.name)
       )
     )
-  ).filter((name) => !activityNames.includes(name))
+  ).filter((name) => !activityNames.includes(name)) */
 
   const showEditButtons = visit.userId === userId
 
@@ -100,6 +96,10 @@ export default async function VisitDetailPage({
           <VisitHeader visit={visit} showEditButtons={showEditButtons} />
         </div>
       </div>
+      <div className="p-6">
+        <SectionTitle>Whos there</SectionTitle>
+        <OverlappingFriends visitId={visit.id} />
+      </div>
       {/*      <OverlappingTrips tripId={visit.id} /> */}
 
       <div className="p-6">
@@ -108,7 +108,6 @@ export default async function VisitDetailPage({
         <ActivityList
           visitId={visit.id}
           initialActivities={activities}
-          activityFriendMap={activityFriendMap}
           canEdit={showEditButtons}
         />
       </div>
@@ -221,40 +220,3 @@ const VisitHeader = ({
     </div>
   </div>
 )
-
-const OverlappingTrips = async ({ tripId }: { tripId: number }) => {
-  const friendsOverlapping = await visitRepository.overlappingVisits(tripId)
-
-  return (
-    <div>
-      <SectionTitle>Also there</SectionTitle>
-      {friendsOverlapping.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          We will notify you when friends have trips that overlap with this one.
-        </p>
-      ) : (
-        <ItemGroup>
-          {friendsOverlapping.map((ov) => {
-            return (
-              <Item key={ov.id} asChild>
-                <Link href={`/visit/${ov.id}`} key={ov.id}>
-                  <ItemMedia variant="image">
-                    <UserAvatar user={ov.user} />
-                  </ItemMedia>
-                  <ItemContent>
-                    <ItemTitle>
-                      {ov.user.name || `User #${ov.user.id}`}
-                    </ItemTitle>
-                    <ItemDescription>
-                      {formatDateRange(ov.arriveAt, ov.departAt)}
-                    </ItemDescription>
-                  </ItemContent>
-                </Link>
-              </Item>
-            )
-          })}
-        </ItemGroup>
-      )}
-    </div>
-  )
-}

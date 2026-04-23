@@ -6,7 +6,6 @@ import { userRepository } from "@/lib/repositories/user-repository"
 import { redirect } from "next/navigation"
 import { Route } from "next"
 import { z } from "zod"
-import { getCloudflareContext } from "@opennextjs/cloudflare"
 import { deleteFile, uploadFile } from "@/lib/storage"
 import { MIME_TYPES } from "@/lib/consts"
 
@@ -18,9 +17,18 @@ export async function updateProfileAction(formData: FormData) {
   const homeCity = (formData.get("homeCity") as string).trim()
   const instagramHandle = (formData.get("instagramHandle") as string).trim()
 
-  await userRepository.update(userId, { name, homeCity, instagramHandle })
+  await userRepository.update(userId, {
+    name,
+    location: {
+      connectOrCreate: {
+        where: { city: homeCity },
+        create: { city: homeCity },
+      },
+    },
+    instagramHandle,
+  })
   revalidatePath("/profile")
-  redirect("/" as Route)
+  redirect("/")
 }
 
 export const uploadProfileImage = async (data: FormData) => {
