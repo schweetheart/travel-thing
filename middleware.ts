@@ -1,19 +1,10 @@
-import { NextRequest, NextResponse } from "next/server"
+import { clerkMiddleware } from "@clerk/nextjs/server"
 
-export const middleware = (request: NextRequest) => {
-  const userId = request.cookies.get("userId")
-
-  if (!userId) {
-    return NextResponse.redirect(new URL("/login", request.url))
-  }
-
-  if (request.nextUrl.pathname === "/") {
-    return NextResponse.redirect(new URL(`/${userId.value}`, request.url))
-  }
-
-  return NextResponse.next()
-}
+export default clerkMiddleware()
 
 export const config = {
-  matcher: "/about/:path*",
+  matcher: [
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
+  ],
 }
