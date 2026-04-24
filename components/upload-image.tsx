@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from "react"
 import Cropper, { type Area } from "react-easy-crop"
-import { uploadProfileImage } from "@/app/(profile)/[id]/actions"
+import { uploadProfileImage } from "@/app/(home)/[id]/actions"
 import { Button } from "./ui/button"
 import {
   Dialog,

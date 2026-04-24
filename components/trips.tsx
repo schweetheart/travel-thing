@@ -11,6 +11,7 @@ import {
 } from "./ui/item"
 import { formatDateRange } from "@/lib/utils"
 import { Badge } from "./ui/badge"
+import { UserAvatar } from "./user-avatar"
 
 function Dot() {
   return <span className="text-muted-foreground">·</span>
@@ -46,37 +47,38 @@ export const Trips = ({ trips }: { trips: Trips }) => {
               <Item key={visit.id} asChild className="flex-nowrap">
                 <Link href={`/visit/${visit.id}`}>
                   <ItemMedia className="size-16 flex-col gap-0 rounded-xl bg-accent text-center leading-none">
-                    {isOngoing ? (
-                      <span className="text-xs font-medium text-muted-foreground">
-                        now
-                      </span>
-                    ) : daysUntil > 0 ? (
-                      <>
-                        <span className="text-lg font-bold tabular-nums">
-                          {daysUntil}
+                    <UserAvatar user={visit.user} />
+                    <div>
+                      {isOngoing ? (
+                        <span className="text-xs font-medium text-muted-foreground">
+                          now
                         </span>
-                        <span className="text-sm text-muted-foreground">
-                          days
+                      ) : daysUntil > 0 ? (
+                        <>
+                          <span className="text-sm text-muted-foreground">
+                            {daysUntil} days
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-xs font-medium text-muted-foreground">
+                          past
                         </span>
-                      </>
-                    ) : (
-                      <span className="text-xs font-medium text-muted-foreground">
-                        past
-                      </span>
-                    )}
+                      )}
+                    </div>
                   </ItemMedia>
 
                   <ItemContent className="overflow-hidden">
                     <div className="flex justify-between gap-2">
                       <div>
+                        <div>{visit.user.name}</div>
                         <ItemTitle className="line-clamp-1">
                           {visit.displayName ?? visit.location.city}
                         </ItemTitle>
-                        {visit.viewerOverlaps && (
+                        {/*                        {visit.viewerOverlaps && (
                           <Badge variant="secondary" className="text-xs">
                             You&apos;re there too
                           </Badge>
-                        )}
+                        )} */}
                       </div>
                       <div className="shrink-0 text-muted-foreground">
                         {formatDateRange(visit.arriveAt, visit.departAt)}

@@ -1,7 +1,6 @@
 import { getCurrentUserId } from "@/lib/auth"
 
 import { Avatar, AvatarBadge } from "./ui/avatar"
-import Link from "next/link"
 import { userRepository } from "@/lib/repositories/user-repository"
 import { AvatarContent } from "./user-avatar"
 import { ChevronDown } from "lucide-react"

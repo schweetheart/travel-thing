@@ -10,64 +10,36 @@ export const visitRepository = {
     return getDb().location.findMany({ orderBy: { city: "asc" } })
   },
 
-  async findFeed(
-    viewerUserId: number,
-    filters?: {
-      city?: string
-      friendId?: number
-      arriveAfter?: Date
-      departBefore?: Date
-    }
-  ) {
-    const where: Prisma.VisitWhereInput = {
-      userId: { not: viewerUserId },
-      ...(filters?.friendId ? { userId: filters.friendId } : {}),
-      ...(filters?.city ? { location: { city: filters.city } } : {}),
-      ...(filters?.arriveAfter
-        ? { arriveAt: { gte: filters.arriveAfter } }
-        : {}),
-      ...(filters?.departBefore
-        ? { departAt: { lte: filters.departBefore } }
-        : {}),
-    }
-
-    const visits = await getDb().visit.findMany({
+  async feedVisits() {
+    return await getDb().visit.findMany({
+      where: { departAt: { gte: new Date() } },
       include: {
-        activities: { include: { activity: true } },
         user: true,
-        location: {
-          include: {
-            visits: {
-              include: { user: true },
-            },
-          },
-        },
+        location: true,
+        activities: { include: { activity: true } },
       },
-      where,
-      orderBy: { departAt: "asc" },
+      orderBy: { arriveAt: "asc" },
+    })
+  },
+
+  async findRelated(id: number) {
+    const visit = await getDb().visit.findUnique({
+      where: { id },
+      include: { location: true },
     })
 
-    return visits.map((visit) => {
-      const overlapping = visit.location.visits.filter(
-        (v) =>
-          v.id !== visit.id &&
-          v.arriveAt < visit.departAt &&
-          v.departAt > visit.arriveAt
-      )
-      const viewerOverlaps = overlapping.some((v) => v.userId === viewerUserId)
-      return {
-        ...visit,
-        viewerOverlaps,
-        location: {
-          ...visit.location,
-          visits: overlapping
-            .filter((v) => v.userId !== viewerUserId)
-            .slice(0, 3),
-          _count: {
-            visits: overlapping.filter((v) => v.userId !== viewerUserId).length,
-          },
-        },
-      }
+    return getDb().visit.findMany({
+      where: {
+        locationId: visit?.locationId,
+        departAt: { gte: new Date() },
+        id: { not: id },
+      },
+      include: {
+        user: true,
+        location: true,
+        activities: { include: { activity: true } },
+      },
+      orderBy: { arriveAt: "asc" },
     })
   },
 
@@ -85,17 +57,11 @@ export const visitRepository = {
   ) {
     const today = new Date()
 
-    const visits = await getDb().visit.findMany({
+    return await getDb().visit.findMany({
       include: {
+        user: true,
         activities: { include: { activity: true } },
-        location: {
-          include: {
-            visits: {
-              where: { userId: { not: userId } },
-              include: { user: true },
-            },
-          },
-        },
+        location: true,
       },
       where: { userId, departAt: upcomingOnly ? { gte: today } : undefined },
       orderBy: { arriveAt: "asc" },
@@ -103,7 +69,7 @@ export const visitRepository = {
 
     // Prisma can't reference parent fields in nested where clauses, so we
     // filter co-visitors to only those whose stay overlaps with this trip.
-    return visits.map((visit) => {
+    /*     return visits.map((visit) => {
       const overlapping = visit.location.visits.filter(
         (v) => v.arriveAt < visit.departAt && v.departAt > visit.arriveAt
       )
@@ -124,7 +90,7 @@ export const visitRepository = {
           },
         },
       }
-    })
+    }) */
   },
 
   // Get all users who have a visit that overlaps with the given visit ID
@@ -304,24 +270,13 @@ export const visitRepository = {
     return getDb().visit.findUnique({
       where: { id },
       include: {
-        user: true,
+        user: {
+          include: { location: true },
+        },
+
         location: true,
         activities: { include: { activity: true } },
       },
-    })
-  },
-
-  async findVisitorsByCity(city: string, excludeUserId: number) {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    return getDb().visit.findMany({
-      where: {
-        location: { city: { equals: city, mode: "insensitive" } },
-        userId: { not: excludeUserId },
-        departAt: { gte: today },
-      },
-      include: { user: true },
-      orderBy: { arriveAt: "asc" },
     })
   },
 }
