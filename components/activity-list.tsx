@@ -9,13 +9,10 @@ import {
   ItemContent,
   ItemDescription,
   ItemGroup,
-  ItemMedia,
   ItemTitle,
 } from "@/components/ui/item"
 import { ExternalLink, Trash } from "lucide-react"
 import { ActivityForm } from "@/components/activity-form"
-import Image from "next/image"
-import glamCocks from "@/public/glam-cocks.jpg"
 
 export type ActivityData = {
   name: string

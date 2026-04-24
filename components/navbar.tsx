@@ -1,12 +1,13 @@
 import Link from "next/link"
 import { Button } from "./ui/button"
-import { LogOut, Plane } from "lucide-react"
+import { LogOut, Plane, Plus } from "lucide-react"
 import { Suspense } from "react"
 import { UserAvatar } from "./user-nav"
 import { getCurrentUserId } from "@/lib/auth"
 import { logoutAction } from "@/app/login/actions"
 import {
   Drawer,
+  DrawerClose,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
@@ -14,14 +15,15 @@ import {
 } from "./ui/drawer"
 
 export const Navbar = async () => {
-  const isSignedIn = Boolean(await getCurrentUserId())
+  const userId = await getCurrentUserId()
+  const isSignedIn = Boolean(userId)
 
   return (
     <div className="flex items-center justify-between p-4">
-      <div className="flex items-center gap-1 text-lg font-extrabold">
+      <Link href="/" className="flex items-center gap-1 text-lg font-extrabold">
         <Plane />
         Trippy
-      </div>
+      </Link>
       {/*       <Button variant={"ghost"} size={"icon"} asChild>
         <Link href="/feed">
           <Home />
@@ -34,17 +36,20 @@ export const Navbar = async () => {
         <Button asChild variant={"link"}>
           <Link href="/friends">Friends</Link>
         </Button>
-        <Button asChild variant={"outline"}>
+        */}
+        <Button asChild variant={"secondary"} size={"sm"}>
           <Link href="/create">
             <Plus />
-            Create
+            New
           </Link>
-        </Button> */}
+        </Button>
         {isSignedIn ? (
           <>
             <Drawer>
               <DrawerTrigger>
-                <Suspense fallback={<div>Loading</div>}>
+                <Suspense
+                  fallback={<div className="size-8 rounded-full bg-accent" />}
+                >
                   <UserAvatar />
                 </Suspense>
               </DrawerTrigger>
@@ -53,11 +58,19 @@ export const Navbar = async () => {
                   <DrawerTitle>Manage Account</DrawerTitle>
                 </DrawerHeader>
 
-                <form action={logoutAction}>
-                  <Button variant={"destructive"} className="w-full">
-                    <LogOut /> Logout
-                  </Button>
-                </form>
+                <div className="flex flex-col gap-2 pt-2">
+                  <DrawerClose asChild>
+                    <Button variant={"outline"} asChild className="w-full">
+                      <Link href={`/${userId}`}>Profile</Link>
+                    </Button>
+                  </DrawerClose>
+
+                  <form action={logoutAction}>
+                    <Button variant={"destructive"} className="w-full">
+                      <LogOut /> Logout
+                    </Button>
+                  </form>
+                </div>
               </DrawerContent>
             </Drawer>
           </>

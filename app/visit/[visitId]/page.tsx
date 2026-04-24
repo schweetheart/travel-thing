@@ -25,15 +25,14 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { ChevronLeft, MoreVertical } from "lucide-react"
+import { ChevronLeft, MapPin, MoreVertical, Plane } from "lucide-react"
+import { RelatedVisits } from "./related-visits"
+import { Suspense } from "react"
 import { UserAvatar } from "@/components/user-avatar"
-import { OverlappingFriends } from "./overlapping-friends"
 
 export default async function VisitDetailPage(
   props: PageProps<"/visit/[visitId]">
 ) {
-  const userId = await getCurrentUserId()
-
   const { visitId } = await props.params
   const id = parseInt(visitId, 10)
   if (isNaN(id)) notFound()
@@ -46,46 +45,12 @@ export default async function VisitDetailPage(
     url: a.activity.url,
   }))
 
-  /*   // Map activity name → list of friend names doing that activity
-  const activityFriendMap: Record<string, string[]> = {}
-  for (const ov of friendsOverlapping) {
-    const name = ov.user.name || `User #${ov.user.id}`
-    for (const a of ov.activities) {
-      const act = a.activity.name
-      if (!activityFriendMap[act]) activityFriendMap[act] = []
-      activityFriendMap[act].push(name)
-    }
-  }
-
-  const activityNames = activities.map((a) => a.name)
-
-  const friendActivities = Array.from(
-    new Set(
-      friendsOverlapping.flatMap((ov) =>
-        ov.activities.map((a) => a.activity.name)
-      )
-    )
-  ).filter((name) => !activityNames.includes(name)) */
+  const userId = await getCurrentUserId()
 
   const showEditButtons = visit.userId === userId
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      {/*       <Item asChild className="group">
-        <Link href={`/${visit.user.id}`}>
-          <ItemMedia variant="image">
-            <UserAvatar user={visit.user} />
-          </ItemMedia>
-          <ItemContent>
-            <ItemTitle className="group-hover:underline">
-              {visit.user.name}
-            </ItemTitle>
-            <ItemDescription className="flex items-center gap-1">
-              <MapPin className="size-3" /> {visit.user.homeCity}
-            </ItemDescription>
-          </ItemContent>
-        </Link>
-      </Item> */}
       <div className="flex items-center gap-2 border-b p-4">
         <Button variant="ghost" size="icon">
           <Link href={`/${visit.user.id}`}>
@@ -96,11 +61,22 @@ export default async function VisitDetailPage(
           <VisitHeader visit={visit} showEditButtons={showEditButtons} />
         </div>
       </div>
-      <div className="p-6">
-        <SectionTitle>Whos there</SectionTitle>
-        <OverlappingFriends visitId={visit.id} />
-      </div>
-      {/*      <OverlappingTrips tripId={visit.id} /> */}
+      <Item asChild className="group">
+        <Link href={`/${visit.user.id}`}>
+          <ItemMedia variant="image">
+            <UserAvatar user={visit.user} />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle className="flex items-center gap-1 group-hover:underline">
+              {visit.user.name}
+            </ItemTitle>
+            <ItemDescription className="flex items-center gap-1">
+              <MapPin className="size-3" />
+              {visit.location.city}
+            </ItemDescription>
+          </ItemContent>
+        </Link>
+      </Item>
 
       <div className="p-6">
         <SectionTitle>Plans</SectionTitle>
@@ -111,28 +87,16 @@ export default async function VisitDetailPage(
           canEdit={showEditButtons}
         />
       </div>
-      {/*       {showEditButtons && friendActivities.length > 0 && (
-        <div>
-          <SectionTitle>Suggested</SectionTitle>
-          <div className="text-sm text-muted-foreground">
-            Based on what other friends are doing
-          </div>
-          <ItemGroup>
-            {friendActivities.map((name) => (
-              <Item key={name} variant={"outline"}>
-                <ItemContent>
-                  <ItemTitle>{name}</ItemTitle>
-                  {activityFriendMap[name] && (
-                    <ItemDescription>
-                      {activityFriendMap[name].join(", ")}
-                    </ItemDescription>
-                  )}
-                </ItemContent>
-              </Item>
-            ))}
-          </ItemGroup>
+      <div>
+        <div className="px-6">
+          <SectionTitle>Related Trips</SectionTitle>
         </div>
-      )} */}
+        <Suspense
+          fallback={<div className="p-6">Loading related visits...</div>}
+        >
+          <RelatedVisits id={visit.id} />
+        </Suspense>
+      </div>
     </div>
   )
 }
@@ -210,6 +174,7 @@ const VisitHeader = ({
       </span>
 
       <div className="text-sm text-muted-foreground">
+        {visit.user.name}
         {formatDateRange(visit.arriveAt, visit.departAt)}
       </div>
     </div>
