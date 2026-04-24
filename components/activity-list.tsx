@@ -9,9 +9,10 @@ import {
   ItemContent,
   ItemDescription,
   ItemGroup,
+  ItemMedia,
   ItemTitle,
 } from "@/components/ui/item"
-import { ExternalLink, Trash } from "lucide-react"
+import { ExternalLink, Music, Trash } from "lucide-react"
 import { ActivityForm } from "@/components/activity-form"
 
 export type ActivityData = {
@@ -64,9 +65,9 @@ export function ActivityList({
       <ItemGroup>
         {activities.map((activity) => (
           <Item key={activity.name} variant={"outline"}>
-            {/*        <ItemMedia variant="image">
-              <Image src={glamCocks} alt="test" />
-            </ItemMedia> */}
+            <ItemMedia variant="icon">
+              <Music />
+            </ItemMedia>
             <ItemContent>
               <ItemTitle>
                 {activity.url ? (
