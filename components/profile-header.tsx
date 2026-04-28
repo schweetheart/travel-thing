@@ -10,7 +10,11 @@ import { FileUpload } from "./upload-image"
 import { ShareButton } from "./share-button"
 import { AvatarContent } from "./user-avatar"
 import { Avatar } from "./ui/avatar"
-import { AddFriendButton, RemoveFriendButton } from "./friend-button"
+import {
+  AddFriendButton,
+  RemoveFriendButton,
+  SignInToAddFriend,
+} from "./friend-button"
 
 export const ProfileHeader = async ({ userId }: { userId: number }) => {
   const currentUserId = await getCurrentUserId()
@@ -93,7 +97,8 @@ export const ProfileHeader = async ({ userId }: { userId: number }) => {
 const FriendButton = async ({ userId }: { userId: number }) => {
   const currentUserId = await getCurrentUserId()
 
-  if (!currentUserId || currentUserId === userId) return null
+  if (!currentUserId) return <SignInToAddFriend targetUserId={userId} />
+  if (currentUserId === userId) return null
 
   const isFriend = await userRepository.areFriends(currentUserId, userId)
 
