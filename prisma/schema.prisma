@@ -1,23 +1,25 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
   engineType = "client"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE")
-
 }
 
 model User {
-  id              Int     @id @default(autoincrement())
+  id              Int       @id @default(autoincrement())
   profileImageKey String?
   name            String?
-  createdAt       DateTime @default(now())
+  createdAt       DateTime  @default(now())
   locationId      Int?
   instagramHandle String?
-  location        Location?   @relation(fields: [locationId], references: [id])
+  location        Location? @relation(fields: [locationId], references: [id])
   visits          Visit[]
+  clerkId         String?   @unique
+  friendsOf       User[]    @relation("UserFriends")
+  friends         User[]    @relation("UserFriends")
 }
 
 model Visit {

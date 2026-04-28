@@ -4,7 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 import { Metadata, Viewport } from "next"
-import { ClerkProvider, Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs"
+import { ClerkProvider } from "@clerk/nextjs"
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -44,15 +44,6 @@ export default function RootLayout({
     >
       <body className="touch-pan-y">
         <ClerkProvider>
-          <header className="flex justify-end items-center px-4 py-2 gap-4">
-            <Show when="signed-out">
-              <SignInButton />
-              <SignUpButton />
-            </Show>
-            <Show when="signed-in">
-              <UserButton />
-            </Show>
-          </header>
           <ThemeProvider>
             <div className="mx-auto max-w-2xl">{children}</div>
           </ThemeProvider>

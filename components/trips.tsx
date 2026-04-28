@@ -6,12 +6,9 @@ import {
   ItemGroup,
   ItemContent,
   ItemTitle,
-  ItemMedia,
   ItemDescription,
 } from "./ui/item"
 import { formatDateRange } from "@/lib/utils"
-import { Badge } from "./ui/badge"
-import { UserAvatar } from "./user-avatar"
 
 function Dot() {
   return <span className="text-muted-foreground">·</span>
@@ -46,7 +43,7 @@ export const Trips = ({ trips }: { trips: Trips }) => {
             return (
               <Item key={visit.id} asChild className="flex-nowrap">
                 <Link href={`/visit/${visit.id}`}>
-                  <ItemMedia className="size-16 flex-col gap-0 rounded-xl bg-accent text-center leading-none">
+                  {/*            <ItemMedia className="size-16 flex-col gap-0 rounded-xl bg-accent text-center leading-none">
                     <UserAvatar user={visit.user} />
                     <div>
                       {isOngoing ? (
@@ -65,12 +62,12 @@ export const Trips = ({ trips }: { trips: Trips }) => {
                         </span>
                       )}
                     </div>
-                  </ItemMedia>
+                  </ItemMedia> */}
 
                   <ItemContent className="overflow-hidden">
                     <div className="flex justify-between gap-2">
                       <div>
-                        <div>{visit.user.name}</div>
+                        {/* <div>{visit.user.name}</div> */}
                         <ItemTitle className="line-clamp-1">
                           {visit.displayName ?? visit.location.city}
                         </ItemTitle>

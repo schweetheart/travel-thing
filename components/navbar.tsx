@@ -1,10 +1,9 @@
 import Link from "next/link"
 import { Button } from "./ui/button"
-import { LogOut, Plane, Plus } from "lucide-react"
+import { Plane, Plus } from "lucide-react"
 import { Suspense } from "react"
 import { UserAvatar } from "./user-nav"
 import { getCurrentUserId } from "@/lib/auth"
-import { logoutAction } from "@/app/login/actions"
 import {
   Drawer,
   DrawerClose,
@@ -13,6 +12,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "./ui/drawer"
+import { SignInButton, SignOutButton } from "@clerk/nextjs"
 
 export const Navbar = async () => {
   const userId = await getCurrentUserId()
@@ -37,14 +37,18 @@ export const Navbar = async () => {
           <Link href="/friends">Friends</Link>
         </Button>
         */}
-        <Button asChild variant={"secondary"} size={"sm"}>
-          <Link href="/create">
-            <Plus />
-            New
-          </Link>
-        </Button>
+
         {isSignedIn ? (
           <>
+            <Button asChild variant={"link"}>
+              <Link href="/friends">Friends</Link>
+            </Button>
+            <Button asChild variant={"secondary"} size={"sm"}>
+              <Link href="/create">
+                <Plus />
+                New
+              </Link>
+            </Button>
             <Drawer>
               <DrawerTrigger>
                 <Suspense
@@ -65,18 +69,14 @@ export const Navbar = async () => {
                     </Button>
                   </DrawerClose>
 
-                  <form action={logoutAction}>
-                    <Button variant={"destructive"} className="w-full">
-                      <LogOut /> Logout
-                    </Button>
-                  </form>
+                  <SignOutButton />
                 </div>
               </DrawerContent>
             </Drawer>
           </>
         ) : (
-          <Button variant={"secondary"} asChild>
-            <Link href="/login">Log in</Link>
+          <Button asChild variant={"outline"}>
+            <SignInButton>Log in</SignInButton>
           </Button>
         )}
       </div>

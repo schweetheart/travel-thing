@@ -78,7 +78,7 @@ export default async function VisitDetailPage(
         </Link>
       </Item>
 
-      <div className="p-6">
+      <div className="px-4">
         <SectionTitle>Plans</SectionTitle>
 
         <ActivityList
@@ -88,7 +88,7 @@ export default async function VisitDetailPage(
         />
       </div>
       <div>
-        <div className="px-6">
+        <div className="px-4">
           <SectionTitle>Related Trips</SectionTitle>
         </div>
         <Suspense

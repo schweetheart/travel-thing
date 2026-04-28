@@ -1,7 +1,7 @@
 "use client"
 import React, { useState } from "react"
 import { Button } from "./ui/button"
-import { Share2, Check } from "lucide-react"
+import { Share, Check } from "lucide-react"
 
 interface ShareButtonProps {
   url?: string
@@ -23,7 +23,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
 
   return (
     <Button variant="outline" onClick={onClick}>
-      {copied ? <Check /> : <Share2 />}
+      {copied ? <Check /> : <Share />}
       {copied ? "Copied!" : text}
     </Button>
   )

@@ -10,6 +10,7 @@ import { FileUpload } from "./upload-image"
 import { ShareButton } from "./share-button"
 import { AvatarContent } from "./user-avatar"
 import { Avatar } from "./ui/avatar"
+import { AddFriendButton, RemoveFriendButton } from "./friend-button"
 
 export const ProfileHeader = async ({ userId }: { userId: number }) => {
   const currentUserId = await getCurrentUserId()
@@ -74,7 +75,7 @@ export const ProfileHeader = async ({ userId }: { userId: number }) => {
           </Link>
         </Button>
       ) : null}
-      {isOwnProfile && (
+      {isOwnProfile ? (
         <div className="mb-4 flex justify-end gap-2">
           <Button variant={"outline"} asChild>
             <Link href={`/${userId}/edit`}>Edit Profile</Link>
@@ -82,7 +83,23 @@ export const ProfileHeader = async ({ userId }: { userId: number }) => {
 
           <ShareButton />
         </div>
+      ) : (
+        <FriendButton userId={userId} />
       )}
     </div>
   )
+}
+
+const FriendButton = async ({ userId }: { userId: number }) => {
+  const currentUserId = await getCurrentUserId()
+
+  if (!currentUserId || currentUserId === userId) return null
+
+  const isFriend = await userRepository.areFriends(currentUserId, userId)
+
+  if (isFriend) {
+    return <RemoveFriendButton targetUserId={userId} />
+  }
+
+  return <AddFriendButton targetUserId={userId} />
 }

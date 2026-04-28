@@ -8,10 +8,10 @@ export default async function Page() {
   const userId = await getCurrentUserId()
 
   if (!userId) {
-    redirect("/login")
+    redirect("/sign-up")
   }
 
-  const visits = await visitRepository.feedVisits()
+  const visits = await visitRepository.feedVisits(userId)
 
   return (
     <div>

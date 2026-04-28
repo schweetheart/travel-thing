@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { getCurrentUserId } from "@/lib/auth"
 import { visitRepository } from "@/lib/repositories/visit-repository"
+import { userRepository } from "@/lib/repositories/user-repository"
 import { redirect } from "next/navigation"
 import { Route } from "next"
 import z from "zod"
@@ -103,4 +104,20 @@ export async function removeActivityFromVisitAction(formData: FormData) {
 
   await visitRepository.removeActivity(visitId, activityName)
   revalidatePath(`/visit/${visitId}`)
+}
+
+export async function addFriendAction(targetUserId: number) {
+  const userId = await getCurrentUserId()
+  if (!userId || userId === targetUserId) return
+
+  await userRepository.addFriend(userId, targetUserId)
+  revalidatePath(`/${targetUserId}`)
+}
+
+export async function removeFriendAction(targetUserId: number) {
+  const userId = await getCurrentUserId()
+  if (!userId || userId === targetUserId) return
+
+  await userRepository.removeFriend(userId, targetUserId)
+  revalidatePath(`/${targetUserId}`)
 }

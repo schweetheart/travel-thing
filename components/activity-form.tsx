@@ -62,10 +62,21 @@ export function ActivityForm({
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" className="w-full">
-          <Plus className="mr-2 h-4 w-4" />
-          Add
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Plus />
+            Accommodation
+          </Button>
+
+          <Button variant="outline">
+            <Plus />
+            Link
+          </Button>
+          <Button variant="outline">
+            <Plus />
+            Event
+          </Button>
+        </div>
       </DrawerTrigger>
       <DrawerContent>
         <div className="mx-auto w-full max-w-lg">

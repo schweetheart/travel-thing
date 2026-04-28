@@ -10,9 +10,16 @@ export const visitRepository = {
     return getDb().location.findMany({ orderBy: { city: "asc" } })
   },
 
-  async feedVisits() {
+  async feedVisits(userId: number) {
     return await getDb().visit.findMany({
-      where: { departAt: { gte: new Date() } },
+      where: {
+        departAt: { gte: new Date() },
+        user: {
+          friendsOf: {
+            some: { id: userId },
+          },
+        },
+      },
       include: {
         user: true,
         location: true,

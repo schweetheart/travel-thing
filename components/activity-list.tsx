@@ -64,7 +64,7 @@ export function ActivityList({
       )}
       <ItemGroup>
         {activities.map((activity) => (
-          <Item key={activity.name} variant={"outline"}>
+          <Item key={activity.name}>
             <ItemMedia variant="icon">
               <Music />
             </ItemMedia>
