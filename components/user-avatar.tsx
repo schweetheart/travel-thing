@@ -1,4 +1,3 @@
-import { getImageProps } from "next/image"
 import { AvatarImage, Avatar, AvatarFallback } from "./ui/avatar"
 import { getInitials } from "@/lib/utils"
 import { getUrl } from "@/lib/storage"
@@ -26,14 +25,15 @@ export const AvatarContent = ({
   size?: number
 }) => {
   if (user.profileImageKey) {
-    const { props } = getImageProps({
-      fill: true,
-      style: { objectFit: "cover" },
-      alt: user.name ?? "User Avatar",
-      src: getUrl(user.profileImageKey),
-      sizes: `${size}px`,
-    })
-    return <AvatarImage {...props} />
+    return (
+      <AvatarImage
+        fill={true}
+        className="object-fit"
+        alt={user.name ?? "User Avatar"}
+        src={getUrl(user.profileImageKey)}
+        sizes={`${size}px`}
+      />
+    )
   }
   return <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
 }

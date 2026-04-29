@@ -29,7 +29,7 @@ export const ProfileHeader = async ({ userId }: { userId: number }) => {
     <div className="flex flex-col items-center gap-4">
       <div className="relative">
         <Avatar className="size-40">
-          <AvatarContent user={user} size={160} />
+          <AvatarContent user={user} size={120} />
         </Avatar>
         {isOwnProfile && (
           <div className="absolute right-0 bottom-0">
