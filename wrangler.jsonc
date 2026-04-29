@@ -10,6 +10,7 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS",
   },
+  "workers_dev": false,
   "services": [
     {
       // Self-reference service binding, the service name must match the worker name
@@ -34,12 +35,6 @@
       "remote": true,
     },
   ],
-  "images": {
-    // Enable image optimization
-    // see https://opennext.js.org/cloudflare/howtos/image
-    "binding": "IMAGES",
-    "remote": true,
-  },
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",

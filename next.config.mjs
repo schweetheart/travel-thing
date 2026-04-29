@@ -16,9 +16,9 @@ const nextConfig = {
       bodySizeLimit: "10mb",
     },
   },
-
   images: {
-    remotePatterns: [new URL(process.env.R2_BUCKET_URL + "/**")],
+    loader: "custom",
+    loaderFile: "./image-loader.ts",
   },
 }
 
