@@ -1,8 +1,7 @@
 "use client"
 
-import { useForm } from "react-hook-form"
+import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useAction } from "next-safe-action/hooks"
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -12,25 +11,27 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group"
 import { User } from "@/lib/repositories/user-repository"
-import { updateProfileSchema, UpdateProfileInput } from "@/lib/schema"
+import { updateProfileSchema } from "@/lib/schema"
 import { updateProfileAction } from "../actions"
 import { Instagram } from "lucide-react"
 
 export const ProfileForm = ({ user }: { user: User }) => {
   const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<UpdateProfileInput>({
-    resolver: zodResolver(updateProfileSchema),
-    defaultValues: {
-      name: user.name ?? "",
-      homeCity: user.location?.city ?? "",
-      instagramHandle: user.instagramHandle ?? "",
+    form: {
+      register,
+      handleSubmit,
+      formState: { errors },
+    },
+    action: { execute, isExecuting },
+  } = useHookFormAction(updateProfileAction, zodResolver(updateProfileSchema), {
+    formProps: {
+      defaultValues: {
+        name: user.name ?? "",
+        homeCity: user.location?.city ?? "",
+        instagramHandle: user.instagramHandle ?? "",
+      },
     },
   })
-
-  const { execute, isExecuting } = useAction(updateProfileAction)
 
   return (
     <form onSubmit={handleSubmit((data) => execute(data))}>

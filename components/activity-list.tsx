@@ -7,12 +7,11 @@ import {
   Item,
   ItemActions,
   ItemContent,
-  ItemDescription,
   ItemGroup,
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item"
-import { ExternalLink, Music, Trash } from "lucide-react"
+import { ExternalLink, Trash } from "lucide-react"
 import { ActivityForm } from "@/components/activity-form"
 
 export type ActivityData = {
