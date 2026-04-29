@@ -32,7 +32,6 @@ export const AvatarContent = ({
       alt: user.name ?? "User Avatar",
       src: getUrl(user.profileImageKey),
       sizes: `${size}px`,
-      preload: true,
     })
     return <AvatarImage {...props} />
   }
