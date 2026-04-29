@@ -24,16 +24,18 @@ export const AvatarContent = ({
   }
   size?: number
 }) => {
-  if (user.profileImageKey) {
-    return (
-      <AvatarImage
-        fill={true}
-        className="object-fit"
-        alt={user.name ?? "User Avatar"}
-        src={getUrl(user.profileImageKey)}
-        sizes={`${size}px`}
-      />
-    )
-  }
-  return <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+  return (
+    <>
+      {user.profileImageKey && (
+        <AvatarImage
+          fill={true}
+          className="object-fit"
+          alt={user.name ?? "User Avatar"}
+          src={getUrl(user.profileImageKey)}
+          sizes={`${size}px`}
+        />
+      )}
+      <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+    </>
+  )
 }

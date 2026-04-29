@@ -30,6 +30,7 @@ import { ChevronLeft, MapPin, MoreVertical } from "lucide-react"
 import { RelatedVisits } from "./related-visits"
 import { Suspense } from "react"
 import { UserAvatar } from "@/components/user-avatar"
+import { HomeCities } from "./home-cities"
 
 export default async function VisitDetailPage(
   props: PageProps<"/visit/[visitId]">
@@ -40,11 +41,6 @@ export default async function VisitDetailPage(
 
   const visit = await visitRepository.findById(id)
   if (!visit) notFound()
-
-  const activities = visit.activities.map((a) => ({
-    name: a.activity.name,
-    url: a.activity.url,
-  }))
 
   const userId = await getCurrentUserId()
 
@@ -84,7 +80,7 @@ export default async function VisitDetailPage(
 
         <ActivityList
           visitId={visit.id}
-          initialActivities={activities}
+          initialActivities={visit.activities}
           canEdit={showEditButtons}
         />
       </div>
@@ -96,6 +92,16 @@ export default async function VisitDetailPage(
           fallback={<div className="p-6">Loading related visits...</div>}
         >
           <RelatedVisits id={visit.id} />
+        </Suspense>
+      </div>
+      <div>
+        <div className="px-4">
+          <SectionTitle>Home Cities</SectionTitle>
+        </div>
+        <Suspense fallback={<div className="p-6">Loading home cities...</div>}>
+          <div className="px-4">
+            <HomeCities id={visit.id} />
+          </div>
         </Suspense>
       </div>
     </div>

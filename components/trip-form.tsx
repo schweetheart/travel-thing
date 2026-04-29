@@ -27,7 +27,6 @@ export type Visit = {
   arriveAt: Date
   departAt: Date
   displayName?: string | null
-  activities?: string[]
 }
 
 type TripFormValues = {

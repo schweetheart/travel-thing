@@ -20,17 +20,20 @@ export function AddFriendButton({ targetUserId }: { targetUserId: number }) {
         router.replace(window.location.pathname as Route)
       })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
     <Button
       variant="outline"
       disabled={isPending}
-      onClick={() => startTransition(async () => { await addFriendAction({ targetUserId }) })}
+      onClick={() =>
+        startTransition(async () => {
+          await addFriendAction({ targetUserId })
+        })
+      }
     >
       <UserPlus />
-      {isPending ? "Adding..." : "Add Friend"}
+      {isPending ? "Adding..." : "Accept"}
     </Button>
   )
 }
@@ -42,7 +45,11 @@ export function RemoveFriendButton({ targetUserId }: { targetUserId: number }) {
     <Button
       variant="outline"
       disabled={isPending}
-      onClick={() => startTransition(async () => { await removeFriendAction({ targetUserId }) })}
+      onClick={() =>
+        startTransition(async () => {
+          await removeFriendAction({ targetUserId })
+        })
+      }
     >
       <UserMinus />
       {isPending ? "Removing..." : "Remove Friend"}

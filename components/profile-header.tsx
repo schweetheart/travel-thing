@@ -1,6 +1,6 @@
 import { getCurrentUserId } from "@/lib/auth"
 
-import { userRepository } from "@/lib/repositories/user-repository"
+import { User, userRepository } from "@/lib/repositories/user-repository"
 
 import Link from "next/link"
 
@@ -88,23 +88,28 @@ export const ProfileHeader = async ({ userId }: { userId: number }) => {
           <ShareButton />
         </div>
       ) : (
-        <FriendButton userId={userId} />
+        <FriendButton user={user} />
       )}
     </div>
   )
 }
 
-const FriendButton = async ({ userId }: { userId: number }) => {
+const FriendButton = async ({ user }: { user: User }) => {
   const currentUserId = await getCurrentUserId()
 
-  if (!currentUserId) return <SignInToAddFriend targetUserId={userId} />
-  if (currentUserId === userId) return null
+  if (!currentUserId) return <SignInToAddFriend targetUserId={user.id} />
+  if (currentUserId === user.id) return null
 
-  const isFriend = await userRepository.areFriends(currentUserId, userId)
+  const isFriend = await userRepository.areFriends(currentUserId, user.id)
 
   if (isFriend) {
-    return <RemoveFriendButton targetUserId={userId} />
+    return <RemoveFriendButton targetUserId={user.id} />
   }
 
-  return <AddFriendButton targetUserId={userId} />
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-lg border bg-accent p-6">
+      <div>{user.name} wants to share their travel plans with you</div>
+      <AddFriendButton targetUserId={user.id} />
+    </div>
+  )
 }

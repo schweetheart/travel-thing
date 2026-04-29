@@ -47,10 +47,11 @@ export const addActivitySchema = z.object({
 
 export type AddActivityInput = z.input<typeof addActivitySchema>
 
-export const removeActivitySchema = z.object({
-  visitId: z.number().int().positive(),
-  activityName: z.string().min(1),
+export const deleteActivitySchema = z.object({
+  activityId: z.number().int().positive(),
 })
+
+export type DeleteActivityInput = z.input<typeof deleteActivitySchema>
 
 export const friendActionSchema = z.object({
   targetUserId: z.number().int().positive(),

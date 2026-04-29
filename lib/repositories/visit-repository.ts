@@ -22,7 +22,7 @@ export const visitRepository = {
       include: {
         user: true,
         location: true,
-        activities: { include: { activity: true } },
+        activities: true,
       },
       orderBy: { arriveAt: "asc" },
     })
@@ -43,7 +43,7 @@ export const visitRepository = {
       include: {
         user: true,
         location: true,
-        activities: { include: { activity: true } },
+        activities: true,
       },
       orderBy: { arriveAt: "asc" },
     })
@@ -61,7 +61,7 @@ export const visitRepository = {
     return await getDb().visit.findMany({
       include: {
         user: true,
-        activities: { include: { activity: true } },
+        activities: true,
         location: true,
       },
       where: { userId, departAt: upcomingOnly ? { gte: today } : undefined },
@@ -135,7 +135,6 @@ export const visitRepository = {
     departAt: Date
     userId: number
     displayName?: string | null
-    activityNames?: string[]
   }) {
     return getDb().visit.create({
       data: {
@@ -151,18 +150,6 @@ export const visitRepository = {
             create: { city: data.city },
           },
         },
-        activities: data.activityNames?.length
-          ? {
-              create: data.activityNames.map((name) => ({
-                activity: {
-                  connectOrCreate: {
-                    where: { name },
-                    create: { name },
-                  },
-                },
-              })),
-            }
-          : undefined,
       },
     })
   },
@@ -173,25 +160,9 @@ export const visitRepository = {
       arriveAt?: Date
       departAt?: Date
       displayName?: string | null
-      activityNames?: string[]
     }
   ) {
     return getDb().$transaction(async (tx) => {
-      if (data.activityNames !== undefined) {
-        await tx.visitActivity.deleteMany({ where: { visitId: id } })
-        if (data.activityNames.length > 0) {
-          for (const name of data.activityNames) {
-            const activity = await tx.activity.upsert({
-              where: { name },
-              create: { name },
-              update: {},
-            })
-            await tx.visitActivity.create({
-              data: { visitId: id, activityId: activity.id },
-            })
-          }
-        }
-      }
       return tx.visit.update({
         where: { id },
         data: {
@@ -208,29 +179,14 @@ export const visitRepository = {
   },
 
   async addActivity(visitId: number, activityName: string, url?: string) {
-    const activity = await getDb().activity.upsert({
-      where: { name: activityName },
-      create: { name: activityName, url: url || null },
-      update: url ? { url } : {},
+    const activity = await getDb().activity.create({
+      data: { name: activityName, url },
     })
-    // No-op if already linked
-    const existing = await getDb().visitActivity.findFirst({
-      where: { visitId, activityId: activity.id },
-    })
-    if (existing) return existing
-    return getDb().visitActivity.create({
-      data: { visitId, activityId: activity.id },
-    })
+    return activity
   },
 
-  async removeActivity(visitId: number, activityName: string) {
-    const activity = await getDb().activity.findUnique({
-      where: { name: activityName },
-    })
-    if (!activity) return
-    await getDb().visitActivity.deleteMany({
-      where: { visitId, activityId: activity.id },
-    })
+  async deleteActivity(activityId: number) {
+    return getDb().activity.delete({ where: { id: activityId } })
   },
 
   async findUpcomingByCity(city: string, excludeUserId?: number) {
@@ -244,7 +200,7 @@ export const visitRepository = {
       include: {
         user: true,
         location: true,
-        activities: { include: { activity: true } },
+        activities: true,
       },
       orderBy: { arriveAt: "asc" },
     })
@@ -261,7 +217,7 @@ export const visitRepository = {
       include: {
         user: true,
         location: true,
-        activities: { include: { activity: true } },
+        activities: true,
       },
       orderBy: { arriveAt: "asc" },
     })
@@ -276,7 +232,16 @@ export const visitRepository = {
         },
 
         location: true,
-        activities: { include: { activity: true } },
+        activities: true,
+      },
+    })
+  },
+  async findByActivityId(activityId: number) {
+    return getDb().visit.findFirst({
+      where: {
+        activities: {
+          some: { id: activityId },
+        },
       },
     })
   },

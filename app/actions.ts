@@ -11,7 +11,6 @@ import {
   createVisitSchema,
   deleteVisitSchema,
   friendActionSchema,
-  removeActivitySchema,
   updateVisitSchema,
 } from "@/lib/schema"
 
@@ -60,7 +59,7 @@ export const addActivityToVisitAction = authAction
     const { visitId, activityName, activityUrl } = parsedInput
 
     const visit = await visitRepository.findById(visitId)
-    if (!visit || visit.userId !== userId) return
+    if (visit?.userId !== userId) return
 
     await visitRepository.addActivity(visitId, activityName, activityUrl)
     revalidatePath(`/visit/${visitId}`)
@@ -70,13 +69,14 @@ export const removeActivityFromVisitAction = authAction
   .inputSchema(removeActivitySchema)
   .action(async ({ ctx, parsedInput }) => {
     const { userId } = ctx
-    const { visitId, activityName } = parsedInput
+    const { activityId } = parsedInput
 
-    const visit = await visitRepository.findById(visitId)
-    if (!visit || visit.userId !== userId) return
+    const visit = await visitRepository.findByActivityId(activityId)
 
-    await visitRepository.removeActivity(visitId, activityName)
-    revalidatePath(`/visit/${visitId}`)
+    if (visit?.userId !== userId) return
+
+    await visitRepository.deleteActivity(activityId)
+    revalidatePath(`/visit/${visit?.id}`)
   })
 
 export const addFriendAction = authAction

@@ -1,17 +1,7 @@
 import { getCurrentUserId } from "@/lib/auth"
 import { userRepository } from "@/lib/repositories/user-repository"
 import { redirect } from "next/navigation"
-import Link from "next/link"
-import { Avatar } from "@/components/ui/avatar"
-import { AvatarContent } from "@/components/user-avatar"
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemMedia,
-  ItemTitle,
-} from "@/components/ui/item"
+
 import {
   Empty,
   EmptyDescription,
@@ -19,8 +9,9 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-import { Home, Users } from "lucide-react"
+import { Users } from "lucide-react"
 import type { Metadata } from "next"
+import { UserList } from "@/components/user-list"
 
 export const metadata: Metadata = {
   title: "Friends",
@@ -49,28 +40,7 @@ export default async function FriendsPage() {
           </EmptyHeader>
         </Empty>
       ) : (
-        <ItemGroup>
-          {friends.map((friend) => (
-            <Item key={friend.id} variant="outline" asChild>
-              <Link href={`/${friend.id}`}>
-                <ItemMedia variant="image">
-                  <Avatar className="size-10">
-                    <AvatarContent user={friend} size={40} />
-                  </Avatar>
-                </ItemMedia>
-                <ItemContent>
-                  <ItemTitle>{friend.name ?? "Unknown"}</ItemTitle>
-                  {friend.location?.city && (
-                    <ItemDescription className="flex items-center gap-1">
-                      <Home />
-                      {friend.location.city}
-                    </ItemDescription>
-                  )}
-                </ItemContent>
-              </Link>
-            </Item>
-          ))}
-        </ItemGroup>
+        <UserList users={friends} />
       )}
     </div>
   )

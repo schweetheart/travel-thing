@@ -23,35 +23,25 @@ model User {
 }
 
 model Visit {
-  id          Int             @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   displayName String?
   locationId  Int
-  arriveAt    DateTime        @db.Date
-  departAt    DateTime        @db.Date
+  arriveAt    DateTime   @db.Date
+  departAt    DateTime   @db.Date
   userId      Int
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  location    Location        @relation(fields: [locationId], references: [id])
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  activities  VisitActivity[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  location    Location   @relation(fields: [locationId], references: [id])
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activities  Activity[]
 }
 
 model Activity {
-  id     Int             @id @default(autoincrement())
-  url    String?
-  name   String          @unique
-  visits VisitActivity[]
-}
-
-model VisitActivity {
-  visitId    Int
-  activityId Int
-  visit      Visit    @relation(fields: [visitId], references: [id], onDelete: Cascade)
-  activity   Activity @relation(fields: [activityId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@id([visitId, activityId])
+  id      Int    @id @default(autoincrement())
+  url     String?
+  name    String
+  visitId Int?
+  visit   Visit? @relation(fields: [visitId], references: [id], onDelete: Cascade)
 }
 
 model Location {

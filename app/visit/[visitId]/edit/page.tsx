@@ -22,8 +22,6 @@ export default async function EditTripPage({
   const visit = await visitRepository.findById(id)
   if (!visit || visit.userId !== userId) notFound()
 
-  const activities = visit.activities.map((a) => a.activity.name)
-
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-6 p-6">
       <div className="flex items-center gap-3">
@@ -41,7 +39,6 @@ export default async function EditTripPage({
           arriveAt: visit.arriveAt,
           departAt: visit.departAt,
           displayName: visit.displayName,
-          activities,
         }}
       />
     </div>

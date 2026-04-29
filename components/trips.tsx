@@ -28,8 +28,6 @@ export const Trips = ({ trips }: { trips: Trips }) => {
       ) : (
         <ItemGroup>
           {visits.map((visit) => {
-            const activities = visit.activities.map((a) => a.activity.name)
-
             const today = new Date()
             today.setHours(0, 0, 0, 0)
             const arrive = new Date(visit.arriveAt)
@@ -81,15 +79,15 @@ export const Trips = ({ trips }: { trips: Trips }) => {
                     </div>
 
                     <div>
-                      {activities.length > 0 && (
+                      {visit.activities.length > 0 && (
                         <ItemDescription className="flex gap-1">
-                          {activities.map((name, i) => (
+                          {visit.activities.map((activity, i) => (
                             <span
-                              key={name}
+                              key={activity.id}
                               className="flex shrink-0 items-center gap-1"
                             >
                               {i > 0 && <Dot />}
-                              {name}
+                              {activity.name}
                             </span>
                           ))}
                         </ItemDescription>
