@@ -4,7 +4,11 @@ import { User } from "@/lib/repositories/user-repository"
 import { getInitials } from "@/lib/utils"
 import { getUrl } from "@/lib/storage"
 
-export const UserAvatar = async ({ user }: { user: User }) => {
+export const UserAvatar = async ({
+  user,
+}: {
+  user: { name: string | null; profileImageKey: string | null }
+}) => {
   return (
     <Avatar>
       <AvatarContent user={user} />
@@ -16,7 +20,10 @@ export const AvatarContent = ({
   user,
   size = 40,
 }: {
-  user: User
+  user: {
+    name: string | null
+    profileImageKey: string | null
+  }
   size?: number
 }) => {
   if (user.profileImageKey) {

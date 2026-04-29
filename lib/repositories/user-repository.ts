@@ -1,7 +1,9 @@
 import { getDb } from "@/lib/db"
 import { Prisma } from "@prisma/client"
 
-export type { User } from "@prisma/client"
+export type User = NonNullable<
+  Awaited<ReturnType<typeof userRepository.findById>>
+>
 
 export const userRepository = {
   async findAll() {

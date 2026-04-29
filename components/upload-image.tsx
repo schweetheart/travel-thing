@@ -80,9 +80,8 @@ export const FileUpload = () => {
       const croppedFile = new File([blob], "profile.jpg", {
         type: "image/jpeg",
       })
-      const formData = new FormData()
-      formData.append("file", croppedFile)
-      await uploadProfileImage(formData)
+
+      await uploadProfileImage(croppedFile)
       setImageSrc(null)
     } finally {
       setUploading(false)
