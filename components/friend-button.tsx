@@ -16,7 +16,7 @@ export function AddFriendButton({ targetUserId }: { targetUserId: number }) {
   useEffect(() => {
     if (searchParams.get("addFriend") === String(targetUserId)) {
       startTransition(async () => {
-        await addFriendAction(targetUserId)
+        await addFriendAction({ targetUserId })
         router.replace(window.location.pathname as Route)
       })
     }
@@ -27,7 +27,7 @@ export function AddFriendButton({ targetUserId }: { targetUserId: number }) {
     <Button
       variant="outline"
       disabled={isPending}
-      onClick={() => startTransition(() => addFriendAction(targetUserId))}
+      onClick={() => startTransition(async () => { await addFriendAction({ targetUserId }) })}
     >
       <UserPlus />
       {isPending ? "Adding..." : "Add Friend"}
@@ -42,7 +42,7 @@ export function RemoveFriendButton({ targetUserId }: { targetUserId: number }) {
     <Button
       variant="outline"
       disabled={isPending}
-      onClick={() => startTransition(() => removeFriendAction(targetUserId))}
+      onClick={() => startTransition(async () => { await removeFriendAction({ targetUserId }) })}
     >
       <UserMinus />
       {isPending ? "Removing..." : "Remove Friend"}

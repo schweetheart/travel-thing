@@ -11,9 +11,11 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item"
-import { createVisitAction, deleteVisitAction } from "@/app/actions"
 import { ShareButton } from "@/components/share-button"
-import { DeleteVisitButton } from "@/components/delete-visit-button"
+import {
+  DeleteVisitButton,
+  CopyVisitButton,
+} from "@/components/delete-visit-button"
 import { formatDateRange } from "@/lib/utils"
 import { ActivityList } from "@/components/activity-list"
 import { Route } from "next"
@@ -122,36 +124,18 @@ const VisitDrawer = ({
         <DrawerTitle>Manage Visit</DrawerTitle>
       </DrawerHeader>
       <div className="flex flex-col gap-2 p-4">
-        <form action={createVisitAction}>
-          <input type="hidden" name="city" value={visit.location.city} />
-          <input
-            type="hidden"
-            name="arriveAt"
-            value={visit.arriveAt.toISOString()}
-          />
-          <input
-            type="hidden"
-            name="departAt"
-            value={visit.departAt.toISOString()}
-          />
-          <input
-            type="hidden"
-            name="displayName"
-            value={visit.displayName ?? ""}
-          />
-          <Button type="submit" variant="outline" className="w-full">
-            Copy into new Visit
-          </Button>
-        </form>
+        <CopyVisitButton
+          city={visit.location.city}
+          arriveAt={visit.arriveAt}
+          departAt={visit.departAt}
+          displayName={visit.displayName}
+        />
         {showEditButtons && (
           <>
             <Button variant="outline" asChild>
               <Link href={`/visit/${visit.id}/edit` as Route}>Edit</Link>
             </Button>
-            <form action={deleteVisitAction}>
-              <input type="hidden" name="id" value={visit.id} />
-              <DeleteVisitButton />
-            </form>
+            <DeleteVisitButton visitId={visit.id} />
           </>
         )}
       </div>

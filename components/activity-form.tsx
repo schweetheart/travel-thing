@@ -47,13 +47,12 @@ export function ActivityForm({
 
   const onSubmit = (data: ActivityFormValues) => {
     startTransition(async () => {
-      const formData = new FormData()
-      formData.set("visitId", String(visitId))
-      formData.set("activityName", data.name)
-      if (data.url) formData.set("activityUrl", data.url)
-
       onAdded?.(data.name)
-      await addActivityToVisitAction(formData)
+      await addActivityToVisitAction({
+        visitId,
+        activityName: data.name,
+        activityUrl: data.url,
+      })
       reset()
       setIsOpen(false)
     })

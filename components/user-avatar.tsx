@@ -1,6 +1,5 @@
 import { getImageProps } from "next/image"
 import { AvatarImage, Avatar, AvatarFallback } from "./ui/avatar"
-import { User } from "@/lib/repositories/user-repository"
 import { getInitials } from "@/lib/utils"
 import { getUrl } from "@/lib/storage"
 

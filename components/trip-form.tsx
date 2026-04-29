@@ -59,19 +59,21 @@ export function TripForm({ visit }: { visit?: Visit }) {
 
   const onSubmit = (data: TripFormValues) => {
     startTransition(async () => {
-      const formData = new FormData()
-      if (isEditing) formData.set("id", String(visit.id))
-      formData.set("city", data.city)
-      formData.set("displayName", data.displayName)
-      if (data.dateRange?.from)
-        formData.set("arriveAt", format(data.dateRange.from, "yyyy-MM-dd"))
-      if (data.dateRange?.to)
-        formData.set("departAt", format(data.dateRange.to, "yyyy-MM-dd"))
-
       if (isEditing) {
-        return await updateVisitAction(formData)
+        await updateVisitAction({
+          id: visit.id,
+          arriveAt: data.dateRange?.from ?? new Date(),
+          departAt: data.dateRange?.to ?? new Date(),
+          displayName: data.displayName || null,
+        })
+        return
       }
-      await createVisitAction(formData)
+      await createVisitAction({
+        city: data.city,
+        displayName: data.displayName || undefined,
+        arriveAt: data.dateRange?.from ?? new Date(),
+        departAt: data.dateRange?.to ?? new Date(),
+      })
     })
   }
 

@@ -1,123 +1,102 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { getCurrentUserId } from "@/lib/auth"
 import { visitRepository } from "@/lib/repositories/visit-repository"
 import { userRepository } from "@/lib/repositories/user-repository"
 import { redirect } from "next/navigation"
 import { Route } from "next"
-import z from "zod"
+import { authAction } from "@/lib/safe-action"
+import {
+  addActivitySchema,
+  createVisitSchema,
+  deleteVisitSchema,
+  friendActionSchema,
+  removeActivitySchema,
+  updateVisitSchema,
+} from "@/lib/schema"
 
-export async function createVisitAction(formData: FormData) {
-  const userId = await getCurrentUserId()
-  if (!userId) return
-
-  // validate with zod
-  const createVisitSchema = z.object({
-    city: z.string().min(1, "City is required"),
-    arriveAt: z.coerce.date(),
-    departAt: z.coerce.date(),
-    displayName: z.string().optional(),
+export const createVisitAction = authAction
+  .inputSchema(createVisitSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { userId } = ctx
+    const created = await visitRepository.create({ ...parsedInput, userId })
+    revalidatePath("/")
+    redirect(`/visit/${created.id}` as Route)
   })
 
-  const validated = createVisitSchema.parse({
-    city: formData.get("city"),
-    arriveAt: formData.get("arriveAt"),
-    departAt: formData.get("departAt"),
-    displayName: formData.get("displayName"),
+export const updateVisitAction = authAction
+  .inputSchema(updateVisitSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { userId } = ctx
+    const { id, arriveAt, departAt, displayName } = parsedInput
+
+    const visit = await visitRepository.findById(id)
+    if (!visit || visit.userId !== userId) return
+
+    await visitRepository.update(id, { arriveAt, departAt, displayName })
+    revalidatePath("/")
+    redirect(`/visit/${id}`)
   })
 
-  const created = await visitRepository.create({ ...validated, userId })
-  revalidatePath("/")
-  redirect(`/visit/${created.id}` as Route)
-}
+export const deleteVisitAction = authAction
+  .inputSchema(deleteVisitSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { userId } = ctx
+    const { id } = parsedInput
 
-export async function updateVisitAction(formData: FormData) {
-  const userId = await getCurrentUserId()
-  if (!userId) return
+    const visit = await visitRepository.findById(id)
 
-  const id = parseInt(formData.get("id") as string, 10)
-  // const city = (formData.get("city") as string).trim()
-  const arriveAt = new Date(formData.get("arriveAt") as string)
-  const departAt = new Date(formData.get("departAt") as string)
-  const displayName =
-    ((formData.get("displayName") as string) ?? "").trim() || null
+    if (!visit || visit.userId !== userId) return
 
-  if (!id || isNaN(arriveAt.getTime()) || isNaN(departAt.getTime())) return
-
-  // verify ownership
-  const visit = await visitRepository.findById(id)
-  if (!visit || visit.userId !== userId) return
-
-  await visitRepository.update(id, {
-    arriveAt,
-    departAt,
-    displayName,
+    await visitRepository.delete(id)
+    revalidatePath("/")
+    redirect("/")
   })
-  revalidatePath("/")
-  redirect(`/visit/${id}` as Route)
-}
 
-export async function deleteVisitAction(formData: FormData) {
-  const userId = await getCurrentUserId()
-  if (!userId) return
+export const addActivityToVisitAction = authAction
+  .inputSchema(addActivitySchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { userId } = ctx
+    const { visitId, activityName, activityUrl } = parsedInput
 
-  const id = parseInt(formData.get("id") as string, 10)
-  if (!id) return
+    const visit = await visitRepository.findById(visitId)
+    if (!visit || visit.userId !== userId) return
 
-  const visit = await visitRepository.findById(id)
-  if (!visit || visit.userId !== userId) return
+    await visitRepository.addActivity(visitId, activityName, activityUrl)
+    revalidatePath(`/visit/${visitId}`)
+  })
 
-  await visitRepository.delete(id)
-  revalidatePath("/")
+export const removeActivityFromVisitAction = authAction
+  .inputSchema(removeActivitySchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { userId } = ctx
+    const { visitId, activityName } = parsedInput
 
-  redirect("/" as Route)
-}
+    const visit = await visitRepository.findById(visitId)
+    if (!visit || visit.userId !== userId) return
 
-export async function addActivityToVisitAction(formData: FormData) {
-  const userId = await getCurrentUserId()
-  if (!userId) return
+    await visitRepository.removeActivity(visitId, activityName)
+    revalidatePath(`/visit/${visitId}`)
+  })
 
-  const visitId = parseInt(formData.get("visitId") as string, 10)
-  const activityName = (formData.get("activityName") as string).trim()
-  const activityUrl =
-    ((formData.get("activityUrl") as string) ?? "").trim() || undefined
-  if (!visitId || !activityName) return
+export const addFriendAction = authAction
+  .inputSchema(friendActionSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { userId } = ctx
+    const { targetUserId } = parsedInput
+    if (userId === targetUserId) return
 
-  const visit = await visitRepository.findById(visitId)
-  if (!visit || visit.userId !== userId) return
+    await userRepository.addFriend(userId, targetUserId)
+    revalidatePath(`/${targetUserId}`)
+  })
 
-  await visitRepository.addActivity(visitId, activityName, activityUrl)
-  revalidatePath(`/visit/${visitId}`)
-}
+export const removeFriendAction = authAction
+  .inputSchema(friendActionSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { userId } = ctx
+    const { targetUserId } = parsedInput
+    if (userId === targetUserId) return
 
-export async function removeActivityFromVisitAction(formData: FormData) {
-  const userId = await getCurrentUserId()
-  if (!userId) return
-
-  const visitId = parseInt(formData.get("visitId") as string, 10)
-  const activityName = (formData.get("activityName") as string).trim()
-  if (!visitId || !activityName) return
-
-  const visit = await visitRepository.findById(visitId)
-  if (!visit || visit.userId !== userId) return
-
-  await visitRepository.removeActivity(visitId, activityName)
-  revalidatePath(`/visit/${visitId}`)
-}
-
-export async function addFriendAction(targetUserId: number) {
-  const userId = await getCurrentUserId()
-  if (!userId || userId === targetUserId) return
-
-  await userRepository.addFriend(userId, targetUserId)
-  revalidatePath(`/${targetUserId}`)
-}
-
-export async function removeFriendAction(targetUserId: number) {
-  const userId = await getCurrentUserId()
-  if (!userId || userId === targetUserId) return
-
-  await userRepository.removeFriend(userId, targetUserId)
-  revalidatePath(`/${targetUserId}`)
-}
+    await userRepository.removeFriend(userId, targetUserId)
+    revalidatePath(`/${targetUserId}`)
+  })

@@ -27,12 +27,10 @@ type OptimisticAction =
 export function ActivityList({
   visitId,
   initialActivities,
-  activityFriendMap = {},
   canEdit = false,
 }: {
   visitId: number
   initialActivities: ActivityData[]
-  activityFriendMap?: Record<string, string[]>
   canEdit?: boolean
 }) {
   const [, startTransition] = useTransition()
@@ -45,13 +43,9 @@ export function ActivityList({
   )
 
   function handleRemove(name: string) {
-    const formData = new FormData()
-    formData.set("visitId", String(visitId))
-    formData.set("activityName", name)
-
     startTransition(async () => {
       dispatchOptimistic({ type: "remove", name })
-      await removeActivityFromVisitAction(formData)
+      await removeActivityFromVisitAction({ visitId, activityName: name })
     })
   }
 
@@ -60,9 +54,7 @@ export function ActivityList({
       <ItemGroup>
         {activities.map((activity) => (
           <Item key={activity.name}>
-            <ItemMedia variant="icon">
-              <Music />
-            </ItemMedia>
+            <ItemMedia variant="icon" />
             <ItemContent>
               <ItemTitle>
                 {activity.url ? (
@@ -79,11 +71,6 @@ export function ActivityList({
                   activity.name
                 )}
               </ItemTitle>
-              {activityFriendMap[activity.name] && (
-                <ItemDescription>
-                  {activityFriendMap[activity.name].join(", ")}
-                </ItemDescription>
-              )}
             </ItemContent>
             <ItemActions>
               <Button
