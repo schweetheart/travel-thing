@@ -1,7 +1,7 @@
 "use client"
 
 import { useTransition } from "react"
-import { useForm, Controller } from "react-hook-form"
+import { useForm, Controller, useWatch } from "react-hook-form"
 import { createVisitAction, updateVisitAction } from "@/app/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -45,7 +45,6 @@ export function TripForm({ visit }: { visit?: Visit }) {
     handleSubmit,
     control,
     formState: { errors },
-    watch,
   } = useForm<TripFormValues>({
     defaultValues: {
       city: visit?.city ?? "",
@@ -56,7 +55,7 @@ export function TripForm({ visit }: { visit?: Visit }) {
     },
   })
 
-  const cityValue = watch("city")
+  const cityValue = useWatch({ control, name: "city" })
 
   const onSubmit = (data: TripFormValues) => {
     startTransition(async () => {

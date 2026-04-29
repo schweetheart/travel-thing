@@ -1,5 +1,4 @@
 import { getDb } from "@/lib/db"
-import type { Prisma } from "@prisma/client"
 
 export const visitRepository = {
   async findLocationById(locationId: number) {
@@ -55,12 +54,7 @@ export const visitRepository = {
    */
   async findByUser(
     userId: number,
-    {
-      upcomingOnly,
-      viewerUserId,
-    }: { upcomingOnly?: boolean; viewerUserId?: number } = {
-      upcomingOnly: false,
-    }
+    { upcomingOnly }: { upcomingOnly?: boolean } = { upcomingOnly: false }
   ) {
     const today = new Date()
 

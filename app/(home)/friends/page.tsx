@@ -19,7 +19,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-import { Users } from "lucide-react"
+import { Home, Users } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -61,7 +61,10 @@ export default async function FriendsPage() {
                 <ItemContent>
                   <ItemTitle>{friend.name ?? "Unknown"}</ItemTitle>
                   {friend.location?.city && (
-                    <ItemDescription>{friend.location.city}</ItemDescription>
+                    <ItemDescription className="flex items-center gap-1">
+                      <Home />
+                      {friend.location.city}
+                    </ItemDescription>
                   )}
                 </ItemContent>
               </Link>

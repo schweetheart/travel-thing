@@ -7,6 +7,7 @@ import {
   ItemContent,
   ItemTitle,
   ItemDescription,
+  ItemMedia,
 } from "./ui/item"
 import { formatDateRange } from "@/lib/utils"
 
@@ -21,8 +22,8 @@ export const Trips = ({ trips }: { trips: Trips }) => {
   return (
     <>
       {visits.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          No trips yet. Add one above!
+        <p className="px-4 py-4 text-sm text-muted-foreground">
+          No trips found.
         </p>
       ) : (
         <ItemGroup>
@@ -35,47 +36,44 @@ export const Trips = ({ trips }: { trips: Trips }) => {
             arrive.setHours(0, 0, 0, 0)
             const depart = new Date(visit.departAt)
             depart.setHours(0, 0, 0, 0)
-            const daysUntil = Math.round(
+
+            const isOngoing = arrive <= today && depart >= today
+            const daysUntil = Math.ceil(
               (arrive.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
             )
-            const isOngoing = today >= arrive && today <= depart
 
             return (
               <Item key={visit.id} asChild className="flex-nowrap">
                 <Link href={`/visit/${visit.id}`}>
-                  {/*            <ItemMedia className="size-16 flex-col gap-0 rounded-xl bg-accent text-center leading-none">
-                    <UserAvatar user={visit.user} />
+                  <ItemMedia className="size-16 flex-col gap-0 rounded-xl bg-accent text-center leading-none">
                     <div>
                       {isOngoing ? (
                         <span className="text-xs font-medium text-muted-foreground">
                           now
                         </span>
                       ) : daysUntil > 0 ? (
-                        <>
-                          <span className="text-sm text-muted-foreground">
-                            {daysUntil} days
+                        <div className="flex flex-col items-center">
+                          <span className="text-lg font-semibold">
+                            {daysUntil}
                           </span>
-                        </>
+                          <span className="font-medium text-muted-foreground">
+                            days
+                          </span>
+                        </div>
                       ) : (
                         <span className="text-xs font-medium text-muted-foreground">
                           past
                         </span>
                       )}
                     </div>
-                  </ItemMedia> */}
+                  </ItemMedia>
 
                   <ItemContent className="overflow-hidden">
                     <div className="flex justify-between gap-2">
                       <div>
-                        {/* <div>{visit.user.name}</div> */}
                         <ItemTitle className="line-clamp-1">
                           {visit.displayName ?? visit.location.city}
                         </ItemTitle>
-                        {/*                        {visit.viewerOverlaps && (
-                          <Badge variant="secondary" className="text-xs">
-                            You&apos;re there too
-                          </Badge>
-                        )} */}
                       </div>
                       <div className="shrink-0 text-muted-foreground">
                         {formatDateRange(visit.arriveAt, visit.departAt)}
@@ -83,19 +81,6 @@ export const Trips = ({ trips }: { trips: Trips }) => {
                     </div>
 
                     <div>
-                      {/*       <ItemDescription className="w-2xs">
-                        <span className="flex items-center gap-1">
-                          {activities.map((name, i) => (
-                            <span
-                              key={name}
-                              className="flex shrink-0 items-center gap-1"
-                            >
-                              {i > 0 && <Dot />}
-                              {name}
-                            </span>
-                          ))}
-                        </span>
-                      </ItemDescription> */}
                       {activities.length > 0 && (
                         <ItemDescription className="flex gap-1">
                           {activities.map((name, i) => (
@@ -109,28 +94,6 @@ export const Trips = ({ trips }: { trips: Trips }) => {
                           ))}
                         </ItemDescription>
                       )}
-
-                      {/*  {visit.location.visits.length > 0 && (
-                          <div className="mt-1 flex items-center gap-2">
-                            <AvatarGroup>
-                              {visit.location.visits.map((v) => {
-                                return <UserAvatar key={v.id} user={v.user} />
-                              })}
-                              {visit.location._count.visits > 3 && (
-                                <AvatarGroupCount>
-                                  +{visit.location._count.visits - 3}
-                                </AvatarGroupCount>
-                              )}
-                            </AvatarGroup>
-                            <span className="text-muted-foreground">
-                              {visit.location.visits
-                                .map((v) => getFirstName(v.user?.name ?? "?"))
-                                .join(", ")}
-                              {visit.location._count.visits > 3 &&
-                                ` +${visit.location._count.visits - 3} more`}
-                            </span>
-                          </div>
-                        )} */}
                     </div>
                   </ItemContent>
                 </Link>
@@ -142,13 +105,3 @@ export const Trips = ({ trips }: { trips: Trips }) => {
     </>
   )
 }
-
-const Notification = ({ children }: { children: React.ReactNode }) => (
-  <div className="inline- relative">
-    {children}
-    <div className="absolute top-0 right-0 flex size-3">
-      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-purple-400 opacity-75"></span>
-      <span className="relative inline-flex size-3 rounded-full bg-purple-500"></span>
-    </div>
-  </div>
-)

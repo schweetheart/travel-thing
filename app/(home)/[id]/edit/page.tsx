@@ -1,19 +1,11 @@
 import { redirect } from "next/navigation"
-import Link from "next/link"
 import { getCurrentUserId } from "@/lib/auth"
 import { userRepository } from "@/lib/repositories/user-repository"
 import { updateProfileAction } from "../actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card"
-import { ChevronLeft, Instagram } from "lucide-react"
+
+import { Instagram } from "lucide-react"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import {
   InputGroup,

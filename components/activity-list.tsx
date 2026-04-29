@@ -57,11 +57,6 @@ export function ActivityList({
 
   return (
     <div className="flex flex-col gap-4">
-      {activities.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          Share what your doing while away
-        </p>
-      )}
       <ItemGroup>
         {activities.map((activity) => (
           <Item key={activity.name}>

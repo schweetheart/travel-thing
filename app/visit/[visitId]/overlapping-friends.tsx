@@ -2,11 +2,9 @@
 
 import { Item, ItemGroup, ItemMedia, ItemTitle } from "@/components/ui/item"
 import { UserAvatar } from "@/components/user-avatar"
-import { getCurrentUserId } from "@/lib/auth"
 import { visitRepository } from "@/lib/repositories/visit-repository"
 
 export const OverlappingFriends = async ({ visitId }: { visitId: number }) => {
-  const userId = await getCurrentUserId()
   const overlappingFriends = await visitRepository.overlappingVisits(visitId)
 
   return (

@@ -24,23 +24,10 @@ export const Navbar = async () => {
         <Plane />
         Trippy
       </Link>
-      {/*       <Button variant={"ghost"} size={"icon"} asChild>
-        <Link href="/feed">
-          <Home />
-        </Link>
-      </Button> */}
       <div className="flex items-center gap-2">
-        {/*  <Button asChild variant={"link"}>
-          <Link href="/visitors">Visitors</Link>
-        </Button>
-        <Button asChild variant={"link"}>
-          <Link href="/friends">Friends</Link>
-        </Button>
-        */}
-
         {isSignedIn ? (
           <>
-            <Button asChild variant={"link"}>
+            <Button asChild variant={"link"} className="text-white">
               <Link href="/friends">Friends</Link>
             </Button>
             <Button asChild variant={"secondary"} size={"sm"}>

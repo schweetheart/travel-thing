@@ -8,7 +8,6 @@ import {
   Item,
   ItemContent,
   ItemDescription,
-  ItemGroup,
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item"
@@ -25,7 +24,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { ChevronLeft, MapPin, MoreVertical, Plane } from "lucide-react"
+import { ChevronLeft, MapPin, MoreVertical } from "lucide-react"
 import { RelatedVisits } from "./related-visits"
 import { Suspense } from "react"
 import { UserAvatar } from "@/components/user-avatar"
@@ -174,7 +173,6 @@ const VisitHeader = ({
       </span>
 
       <div className="text-sm text-muted-foreground">
-        {visit.user.name}
         {formatDateRange(visit.arriveAt, visit.departAt)}
       </div>
     </div>
