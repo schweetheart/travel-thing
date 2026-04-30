@@ -2,14 +2,6 @@ import { getDb } from "@/lib/db"
 import { CreateActivityInput } from "../schema"
 
 export const visitRepository = {
-  async findLocationById(locationId: number) {
-    return getDb().location.findUnique({ where: { id: locationId } })
-  },
-
-  async findAllLocations() {
-    return getDb().location.findMany({ orderBy: { city: "asc" } })
-  },
-
   async feedVisits(userId: number) {
     return await getDb().visit.findMany({
       where: {
@@ -45,6 +37,11 @@ export const visitRepository = {
         locationId: visit?.locationId,
         departAt: { gte: new Date() },
         id: { not: id },
+        user: {
+          friendsOf: {
+            some: { id: visit?.userId },
+          },
+        },
       },
       include: {
         user: true,

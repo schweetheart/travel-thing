@@ -4,13 +4,6 @@ import { getCurrentUserId } from "@/lib/auth"
 import { visitRepository } from "@/lib/repositories/visit-repository"
 import { Button } from "@/components/ui/button"
 
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from "@/components/ui/item"
 import { ShareButton } from "@/components/share-button"
 import {
   DeleteVisitButton,
@@ -26,7 +19,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { ChevronLeft, MapPin, MoreVertical } from "lucide-react"
+import { MoreVertical } from "lucide-react"
 import { RelatedVisits } from "./related-visits"
 import { Suspense } from "react"
 import { UserAvatar } from "@/components/user-avatar"
@@ -142,10 +135,10 @@ const VisitHeader = ({
           {visit.displayName ?? visit.location.city}
         </span>
       </div>
-      <div className="flex items-center gap-2">
+      <Link href={`/${visit.user.id}`} className="flex items-center gap-2">
         <UserAvatar user={visit.user} />
-        <span className="text-sm">{visit.user.name}</span>
-      </div>
+        <span className="text-sm hover:underline">{visit.user.name}</span>
+      </Link>
     </div>
 
     <div className="flex items-center gap-2">
