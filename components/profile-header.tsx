@@ -15,13 +15,14 @@ import {
   RemoveFriendButton,
   SignInToAddFriend,
 } from "./friend-button"
+import { notFound } from "next/navigation"
 
 export const ProfileHeader = async ({ userId }: { userId: number }) => {
   const currentUserId = await getCurrentUserId()
 
   const user = await userRepository.findById(userId)
 
-  if (!user) return null
+  if (!user) return notFound()
 
   const isOwnProfile = currentUserId === userId
 
