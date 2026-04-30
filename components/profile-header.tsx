@@ -109,7 +109,7 @@ const FriendButton = async ({ user }: { user: User }) => {
 
   return (
     <div className="flex items-center justify-between gap-4 rounded-lg border bg-accent p-6">
-      <div>{user.name} wants to share their travel plans with you</div>
+      <div>{user.name} has invited you to be friends</div>
       <AddFriendButton targetUserId={user.id} />
     </div>
   )

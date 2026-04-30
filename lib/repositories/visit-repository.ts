@@ -14,11 +14,16 @@ export const visitRepository = {
     return await getDb().visit.findMany({
       where: {
         departAt: { gte: new Date() },
-        user: {
-          friendsOf: {
-            some: { id: userId },
+        OR: [
+          { userId },
+          {
+            user: {
+              friendsOf: {
+                some: { id: userId },
+              },
+            },
           },
-        },
+        ],
       },
       include: {
         user: true,

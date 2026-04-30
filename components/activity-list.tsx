@@ -75,16 +75,18 @@ export function ActivityList({
                 )}
               </ItemTitle>
             </ItemContent>
-            <ItemActions>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => handleRemove(activity.id)}
-              >
-                <Trash />
-              </Button>
-            </ItemActions>
+            {canEdit && (
+              <ItemActions>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleRemove(activity.id)}
+                >
+                  <Trash />
+                </Button>
+              </ItemActions>
+            )}
           </Item>
         ))}
       </ItemGroup>

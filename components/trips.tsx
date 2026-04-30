@@ -10,6 +10,8 @@ import {
   ItemMedia,
 } from "./ui/item"
 import { formatDateRange } from "@/lib/utils"
+import { getCurrentUserId } from "@/lib/auth"
+import { UserAvatar } from "./user-avatar"
 
 function Dot() {
   return <span className="text-muted-foreground">·</span>
@@ -17,7 +19,8 @@ function Dot() {
 
 type Trips = Awaited<ReturnType<typeof visitRepository.findByUser>>
 
-export const Trips = ({ trips }: { trips: Trips }) => {
+export const Trips = async ({ trips }: { trips: Trips }) => {
+  const currentUserId = await getCurrentUserId()
   const visits = trips
   return (
     <>
@@ -43,27 +46,53 @@ export const Trips = ({ trips }: { trips: Trips }) => {
             return (
               <Item key={visit.id} asChild className="flex-nowrap">
                 <Link href={`/visit/${visit.id}`}>
-                  <ItemMedia className="size-16 flex-col gap-0 rounded-xl bg-accent text-center leading-none">
-                    <div>
-                      {isOngoing ? (
-                        <span className="text-xs font-medium text-muted-foreground">
-                          now
-                        </span>
-                      ) : daysUntil > 0 ? (
-                        <div className="flex flex-col items-center">
-                          <span className="text-lg font-semibold">
-                            {daysUntil}
-                          </span>
-                          <span className="font-medium text-muted-foreground">
-                            days
-                          </span>
+                  <ItemMedia className="size-16 flex-col gap-0.5 rounded-xl bg-accent text-center leading-none">
+                    {visit.userId !== currentUserId ? (
+                      <>
+                        <UserAvatar user={visit.user} />
+                        <div>
+                          {isOngoing ? (
+                            <span className="text-[10px] font-medium text-muted-foreground">
+                              now
+                            </span>
+                          ) : daysUntil > 0 ? (
+                            <div className="flex items-baseline justify-center gap-0.5">
+                              <span className="text-sm font-semibold">
+                                {daysUntil}
+                              </span>
+                              <span className="text-sm text-muted-foreground">
+                                d
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-[10px] font-medium text-muted-foreground">
+                              past
+                            </span>
+                          )}
                         </div>
-                      ) : (
-                        <span className="text-xs font-medium text-muted-foreground">
-                          past
-                        </span>
-                      )}
-                    </div>
+                      </>
+                    ) : (
+                      <div>
+                        {isOngoing ? (
+                          <span className="text-xs font-medium text-muted-foreground">
+                            now
+                          </span>
+                        ) : daysUntil > 0 ? (
+                          <div className="flex flex-col items-center">
+                            <span className="text-lg font-semibold">
+                              {daysUntil}
+                            </span>
+                            <span className="font-medium text-muted-foreground">
+                              days
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs font-medium text-muted-foreground">
+                            past
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </ItemMedia>
 
                   <ItemContent className="overflow-hidden">

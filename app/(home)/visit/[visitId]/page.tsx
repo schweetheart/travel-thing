@@ -48,32 +48,11 @@ export default async function VisitDetailPage(
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <div className="flex items-center gap-2 border-b p-4">
-        <Button variant="ghost" size="icon">
-          <Link href={`/${visit.user.id}`}>
-            <ChevronLeft />
-          </Link>
-        </Button>
+      <div className="flex items-center gap-2 p-4">
         <div className="flex-1">
           <VisitHeader visit={visit} showEditButtons={showEditButtons} />
         </div>
       </div>
-      <Item asChild className="group">
-        <Link href={`/${visit.user.id}`}>
-          <ItemMedia variant="image">
-            <UserAvatar user={visit.user} />
-          </ItemMedia>
-          <ItemContent>
-            <ItemTitle className="flex items-center gap-1 group-hover:underline">
-              {visit.user.name}
-            </ItemTitle>
-            <ItemDescription className="flex items-center gap-1">
-              <MapPin className="size-3" />
-              {visit.location.city}
-            </ItemDescription>
-          </ItemContent>
-        </Link>
-      </Item>
 
       <div className="px-4">
         <SectionTitle>Plans</SectionTitle>
@@ -156,18 +135,23 @@ const VisitHeader = ({
   visit: NonNullable<Awaited<ReturnType<typeof visitRepository.findById>>>
   showEditButtons: boolean
 }) => (
-  <div className="flex justify-between gap-2">
-    <div>
-      <span className="text-xl font-bold hover:underline">
-        {visit.displayName ?? visit.location.city}
-      </span>
-
-      <div className="text-sm text-muted-foreground">
-        {formatDateRange(visit.arriveAt, visit.departAt)}
+  <div className="flex justify-between gap-2 border-b pb-4">
+    <div className="flex flex-col gap-2">
+      <div>
+        <span className="text-2xl font-bold">
+          {visit.displayName ?? visit.location.city}
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        <UserAvatar user={visit.user} />
+        <span className="text-sm">{visit.user.name}</span>
       </div>
     </div>
 
     <div className="flex items-center gap-2">
+      <div className="text-sm text-muted-foreground">
+        {formatDateRange(visit.arriveAt, visit.departAt)}
+      </div>
       <ShareButton />
       <VisitDrawer visit={visit} showEditButtons={showEditButtons} />
     </div>
