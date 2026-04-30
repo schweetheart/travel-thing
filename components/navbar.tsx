@@ -19,7 +19,7 @@ export const Navbar = async () => {
   const isSignedIn = Boolean(userId)
 
   return (
-    <div className="flex items-center justify-between p-4">
+    <div className="mb-8 flex items-center justify-between p-4">
       <Link href="/" className="flex items-center gap-1 text-lg font-extrabold">
         <Plane />
         Trippy

@@ -46,9 +46,10 @@ export default async function VisitDetailPage(
           <VisitHeader visit={visit} showEditButtons={showEditButtons} />
         </div>
       </div>
-
-      <div className="px-4">
-        <SectionTitle>Plans</SectionTitle>
+      <div>
+        <div className="px-4">
+          <SectionTitle>Plans</SectionTitle>
+        </div>
 
         <ActivityList
           visitId={visit.id}
@@ -128,25 +129,23 @@ const VisitHeader = ({
   visit: NonNullable<Awaited<ReturnType<typeof visitRepository.findById>>>
   showEditButtons: boolean
 }) => (
-  <div className="flex justify-between gap-2 border-b pb-4">
-    <div className="flex flex-col gap-2">
+  <div className="flex flex-col gap-4">
+    <div className="flex justify-between gap-2">
       <div>
         <span className="text-2xl font-bold">
           {visit.displayName ?? visit.location.city}
         </span>
       </div>
-      <Link href={`/${visit.user.id}`} className="flex items-center gap-2">
-        <UserAvatar user={visit.user} />
-        <span className="text-sm hover:underline">{visit.user.name}</span>
-      </Link>
-    </div>
-
-    <div className="flex items-center gap-2">
-      <div className="text-sm text-muted-foreground">
-        {formatDateRange(visit.arriveAt, visit.departAt)}
+      <div className="flex items-center gap-2">
+        <div className="text-sm">
+          {formatDateRange(visit.arriveAt, visit.departAt)}
+        </div>
+        <VisitDrawer visit={visit} showEditButtons={showEditButtons} />
       </div>
-      <ShareButton />
-      <VisitDrawer visit={visit} showEditButtons={showEditButtons} />
     </div>
+    <Link href={`/${visit.user.id}`} className="flex items-center gap-2">
+      <UserAvatar user={visit.user} />
+      <span className="text-sm hover:underline">{visit.user.name}</span>
+    </Link>
   </div>
 )

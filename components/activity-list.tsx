@@ -56,8 +56,7 @@ export function ActivityList({
     <div className="flex flex-col gap-4">
       <ItemGroup>
         {activities.map((activity) => (
-          <Item key={activity.id}>
-            <ItemMedia variant="icon" />
+          <Item key={activity.id} className="hover:bg-muted">
             <ItemContent>
               <ItemTitle>
                 {activity.url ? (
@@ -92,15 +91,20 @@ export function ActivityList({
       </ItemGroup>
 
       {canEdit && (
-        <ActivityForm
-          visitId={visitId}
-          setValueAction={(data) =>
-            dispatchOptimistic({
-              type: "add",
-              data: { ...data, id: Math.floor(Math.random() * (1000 - 0)) + 0 },
-            })
-          }
-        />
+        <div className="px-4">
+          <ActivityForm
+            visitId={visitId}
+            setValueAction={(data) =>
+              dispatchOptimistic({
+                type: "add",
+                data: {
+                  ...data,
+                  id: Math.floor(Math.random() * (1000 - 0)) + 0,
+                },
+              })
+            }
+          />
+        </div>
       )}
     </div>
   )

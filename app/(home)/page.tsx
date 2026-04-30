@@ -17,7 +17,7 @@ export default async function Page() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-4 flex items-center gap-2 px-4">
         <Button variant="outline">All</Button>
         <Button variant="outline">My trips</Button>
       </div>

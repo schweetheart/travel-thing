@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/empty"
 import { Separator } from "@/components/ui/separator"
 import { userRepository } from "@/lib/repositories/user-repository"
+import { getUrl } from "@/lib/storage"
+import { getDb } from "@/lib/db"
 
 type ProfilePageProps = PageProps<"/[id]">
 
@@ -26,9 +28,23 @@ export async function generateMetadata({
   const { id } = await params
 
   const user = await userRepository.findById(parseInt(id, 10))
+  const tripCount = await getDb().visit.count({
+    where: { userId: parseInt(id, 10), departAt: { gte: new Date() } },
+  })
 
   return {
     title: `${user?.name}`,
+    openGraph: {
+      title: `${user?.name} has invited you on FriendMap! `,
+      description: `${tripCount} upcoming ${tripCount === 1 ? "trip" : "trips"}`,
+      ...(user?.profileImageKey && {
+        images: [
+          {
+            url: getUrl(user?.profileImageKey),
+          },
+        ],
+      }),
+    },
   }
 }
 

@@ -10,7 +10,7 @@ interface ShareButtonProps {
 
 export const ShareButton: React.FC<ShareButtonProps> = ({
   url,
-  text = "Share",
+  text = "Invite",
 }) => {
   const [copied, setCopied] = useState(false)
 

@@ -21,7 +21,11 @@ export const HomeCities = async ({ id }: { id: number }) => {
   })
 
   if (friends.length === 0)
-    return <div>No friends live in {visit.location.city} yet.</div>
+    return (
+      <p className="py-4 text-sm text-muted-foreground">
+        No friends live in {visit.location.city}.
+      </p>
+    )
 
   return <UserList users={friends} />
 }

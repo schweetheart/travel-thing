@@ -12,6 +12,7 @@ import {
 import { Users } from "lucide-react"
 import type { Metadata } from "next"
 import { UserList } from "@/components/user-list"
+import { ShareButton } from "@/components/share-button"
 
 export const metadata: Metadata = {
   title: "Friends",
@@ -36,6 +37,7 @@ export default async function FriendsPage() {
             <EmptyTitle>No friends yet</EmptyTitle>
             <EmptyDescription>
               Share your profile link to connect with friends.
+              <ShareButton url={`${window.location.origin}/${userId}`} />
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
