@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
-import { addActivityToVisitAction } from "@/app/actions"
+import { createActivityAction } from "@/app/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Field, FieldLabel, FieldSet } from "@/components/ui/field"
@@ -24,10 +24,16 @@ type ActivityFormValues = {
 
 export function ActivityForm({
   visitId,
-  onAdded,
+  setValueAction,
 }: {
   visitId: number
-  onAdded?: (name: string) => void
+  setValueAction?: ({
+    name,
+    url,
+  }: {
+    name: string
+    url?: string | null
+  }) => void
 }) {
   const [isPending, startTransition] = useTransition()
 
@@ -46,15 +52,16 @@ export function ActivityForm({
   })
 
   const onSubmit = (data: ActivityFormValues) => {
+    setIsOpen(false)
+    reset()
+
     startTransition(async () => {
-      onAdded?.(data.name)
-      await addActivityToVisitAction({
+      setValueAction?.(data)
+      createActivityAction({
         visitId,
-        activityName: data.name,
-        activityUrl: data.url,
+        name: data.name,
+        url: data.url || undefined,
       })
-      reset()
-      setIsOpen(false)
     })
   }
 

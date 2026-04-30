@@ -7,8 +7,9 @@ import { redirect } from "next/navigation"
 import { Route } from "next"
 import { authAction } from "@/lib/safe-action"
 import {
-  addActivitySchema,
+  createActivitySchema,
   createVisitSchema,
+  deleteActivitySchema,
   deleteVisitSchema,
   friendActionSchema,
   updateVisitSchema,
@@ -52,21 +53,21 @@ export const deleteVisitAction = authAction
     redirect("/")
   })
 
-export const addActivityToVisitAction = authAction
-  .inputSchema(addActivitySchema)
+export const createActivityAction = authAction
+  .inputSchema(createActivitySchema)
   .action(async ({ ctx, parsedInput }) => {
     const { userId } = ctx
-    const { visitId, activityName, activityUrl } = parsedInput
+    const { visitId } = parsedInput
 
     const visit = await visitRepository.findById(visitId)
     if (visit?.userId !== userId) return
 
-    await visitRepository.addActivity(visitId, activityName, activityUrl)
+    await visitRepository.createActivity(parsedInput)
     revalidatePath(`/visit/${visitId}`)
   })
 
-export const removeActivityFromVisitAction = authAction
-  .inputSchema(removeActivitySchema)
+export const deleteActivityAction = authAction
+  .inputSchema(deleteActivitySchema)
   .action(async ({ ctx, parsedInput }) => {
     const { userId } = ctx
     const { activityId } = parsedInput

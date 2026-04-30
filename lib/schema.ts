@@ -39,13 +39,13 @@ export const deleteVisitSchema = z.object({
   id: z.number().int().positive(),
 })
 
-export const addActivitySchema = z.object({
+export const createActivitySchema = z.object({
   visitId: z.number().int().positive(),
-  activityName: z.string().min(1),
-  activityUrl: z.string().url().optional(),
+  name: z.string().min(1),
+  url: z.url().optional(),
 })
 
-export type AddActivityInput = z.input<typeof addActivitySchema>
+export type CreateActivityInput = z.input<typeof createActivitySchema>
 
 export const deleteActivitySchema = z.object({
   activityId: z.number().int().positive(),

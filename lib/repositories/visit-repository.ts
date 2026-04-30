@@ -1,4 +1,5 @@
 import { getDb } from "@/lib/db"
+import { CreateActivityInput } from "../schema"
 
 export const visitRepository = {
   async findLocationById(locationId: number) {
@@ -178,9 +179,9 @@ export const visitRepository = {
     return getDb().visit.delete({ where: { id } })
   },
 
-  async addActivity(visitId: number, activityName: string, url?: string) {
+  async createActivity(data: CreateActivityInput) {
     const activity = await getDb().activity.create({
-      data: { name: activityName, url },
+      data,
     })
     return activity
   },

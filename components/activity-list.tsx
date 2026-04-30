@@ -1,7 +1,7 @@
 "use client"
 
 import { useOptimistic, useTransition } from "react"
-import { removeActivityFromVisitAction } from "@/app/actions"
+import { deleteActivityAction } from "@/app/actions"
 import { Button } from "@/components/ui/button"
 import {
   Item,
@@ -17,11 +17,12 @@ import { ActivityForm } from "@/components/activity-form"
 export type ActivityData = {
   name: string
   url?: string | null
+  id: number
 }
 
 type OptimisticAction =
-  | { type: "add"; name: string }
-  | { type: "remove"; name: string }
+  | { type: "add"; data: ActivityData }
+  | { type: "remove"; id: number }
 
 export function ActivityList({
   visitId,
@@ -36,15 +37,18 @@ export function ActivityList({
   const [activities, dispatchOptimistic] = useOptimistic(
     initialActivities,
     (state, action: OptimisticAction) => {
-      if (action.type === "add") return [...state, { name: action.name }]
-      return state.filter((a) => a.name !== action.name)
+      if (action.type === "add") return [...state, action.data]
+      return state.filter((a) => a.id !== action.id)
     }
   )
 
-  function handleRemove(name: string) {
+  function handleRemove(id: number) {
     startTransition(async () => {
-      dispatchOptimistic({ type: "remove", name })
-      await removeActivityFromVisitAction({ visitId, activityName: name })
+      dispatchOptimistic({
+        type: "remove",
+        id,
+      })
+      await deleteActivityAction({ activityId: id })
     })
   }
 
@@ -52,7 +56,7 @@ export function ActivityList({
     <div className="flex flex-col gap-4">
       <ItemGroup>
         {activities.map((activity) => (
-          <Item key={activity.name}>
+          <Item key={activity.id}>
             <ItemMedia variant="icon" />
             <ItemContent>
               <ItemTitle>
@@ -76,7 +80,7 @@ export function ActivityList({
                 type="button"
                 variant="ghost"
                 size="icon"
-                onClick={() => handleRemove(activity.name)}
+                onClick={() => handleRemove(activity.id)}
               >
                 <Trash />
               </Button>
@@ -88,7 +92,12 @@ export function ActivityList({
       {canEdit && (
         <ActivityForm
           visitId={visitId}
-          onAdded={(name) => dispatchOptimistic({ type: "add", name })}
+          setValueAction={(data) =>
+            dispatchOptimistic({
+              type: "add",
+              data: { ...data, id: Math.floor(Math.random() * (1000 - 0)) + 0 },
+            })
+          }
         />
       )}
     </div>
